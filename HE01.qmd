@@ -1,0 +1,24 @@
+---
+title: "Hands-on Exercise 1"
+author: "Xu Qianqian"
+date: "January 10, 2026"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# Overview
+
+## Getting Started
+
+```{r}
+pacman::p_load(tidyverse)
+
+```
+
+# The Data
+
+# First visualisation
