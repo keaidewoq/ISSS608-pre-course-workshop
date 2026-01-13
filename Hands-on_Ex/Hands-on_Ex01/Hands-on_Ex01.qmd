@@ -1,7 +1,7 @@
 ---
 title: "Hands-on Exercise 1"
 author: "Xu Qianqian"
-date: "January 10, 2026"
+date: "January 13, 2026"
 date-modified: "last-modified"
 execute: 
   eval: true
@@ -12,15 +12,20 @@ execute:
 
 # Overview
 
-This is my first attempt to create the coursework website.
+A Layered Grammar of Graphics: ggplot2 methods.
 
 ## Getting Started
 
+### Installing and loading the required libraries
+
 ```{r}
 pacman::p_load(tidyverse)
-
 ```
 
-# The Data
+# Importing data
+
+```{r}
+exam_data <- read_csv("data/Exam_data.csv")
+```
 
 # First visualisation

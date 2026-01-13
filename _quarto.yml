@@ -2,13 +2,13 @@ project:
   type: website
 
 website:
-  title: "ISSS608-Coursework Website"
+  title: "ISSS608-VAA"
   navbar:
     left: 
     - text: "Hands-on Exercise"
       menu: 
       - text: "Hands-on Exercise 1"
-        href: "HE01.html"
+        href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html"
     - text: "In-class Exercise"
       menu:
       - text: "In-class Exercise 1"
@@ -20,9 +20,7 @@ website:
 
 format:
   html:
-    theme:
-      - sketchy
-      - brand
+    theme: flatly
     css: styles.css
     toc: true
 
