@@ -640,7 +640,7 @@ subplot(ggplotly(p1),
         ggplotly(p2))
 ```
 
-Click on a data point of one of the scatterplot and see how the corresponding point on the other scatterplot is selected. 
+Click on a data point of one of the scatterplot and see how the corresponding point on the other scatterplot is selected.
 
 ## The code chunk
 
