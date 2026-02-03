@@ -1,0 +1,11 @@
+---
+title: "Hands-on Exercise 4c"
+author: "Xu Qianqian"
+date: "February 3, 2026"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
