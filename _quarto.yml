@@ -4,39 +4,58 @@ project:
 website:
   title: "ISSS608-VAA"
   navbar:
+    background: primary
+    search: true      
     left: 
-    - text: "Hands-on Exercise"
-      menu: 
-      - text: "Hands-on Exercise 1"
-        href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd"
-      - text: "Hands-on Exercise 2"
-        href: "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.qmd"
-      - text: "Hands-on Exercise 3a"
-        href: "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03a.qmd"
-      - text: "Hands-on Exercise 3b"
-        href: "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03b.qmd"
-      - text: "Hands-on Exercise 4a"
-        href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04a.qmd"
-      - text: "Hands-on Exercise 4b"
-        href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04b.qmd"
-      - text: "Hands-on Exercise 4c"
-        href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04c.qmd"
-      - text: "Hands-on Exercise 4d"
-        href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04d.qmd"
-    - text: "In-class Exercise"
-      menu:
-      - text: "In-class Exercise 1"
-        href: "IE01.html"
+      - text: "Hands-on Exercise"
+        menu: 
+          - text: "Hands-on Exercise 1"
+            href: "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd"
+          - text: "Hands-on Exercise 2"
+            href: "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.qmd"
+          - text: "Hands-on Exercise 3a"
+            href: "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03a.qmd"
+          - text: "Hands-on_Exercise 3b"
+            href: "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03b.qmd"
+          - text: "Hands-on Exercise 4a"
+            href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04a.qmd"
+          - text: "Hands-on Exercise 4b"
+            href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04b.qmd"
+          - text: "Hands-on Exercise 4c"
+            href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04c.qmd"
+          - text: "Hands-on Exercise 4d"
+            href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04d.qmd"
+      - text: "Take-home Exercise"
+        menu:
+          - text: "Take-home Exercise 1"
+            href: "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd"
     right:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+      - icon: github
+        href: https://github.com/keaidewoq
+      - icon: linkedin
+        href: https://linkedin.com/in/xuqianqian0706
+      - text: "About"
+        href: about.qmd
+
+  page-footer:
+    left: "© 2026 Xu Qianqian"
+    right: 
+      - text: "Made with Quarto"
+        icon: heart-fill
+  back-to-top-navigation: true
 
 format:
   html:
-    theme: flatly
+    theme: 
+      light: flatly
+      dark: darkly
+    fontsize: 1.1em
+    linestretch: 1.5
     css: styles.css
     toc: true
+    toc-location: right
+    smooth-scroll: true
+    link-external-icon: true
+    link-external-newwindow: true
 
 editor: visual
-
