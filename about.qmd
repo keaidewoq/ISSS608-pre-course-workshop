@@ -7,4 +7,4 @@ about:
 
 I am a Master of IT in Business (Data Science and Analytics) student at Singapore Management University, graduating in Dec 2026. With a background in Pharmacy, I am passionate about bridging the gap between healthcare expertise and data-driven decision-making.
 
-Currently, I'm diving deep into Visual Analytics (ISSS608) and building my portfolio in R and Python.
+Currently, I'm diving deep into Visual Analytics (ISSS608) and building my portfolio in R.

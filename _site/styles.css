@@ -1,1 +1,94 @@
-/* css styles */
+/* Custom Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&display=swap');
+
+body {
+  font-family: 'Fredoka', sans-serif;
+}
+
+/* 1. Navbar Gradient & Style */
+.navbar {
+  background: linear-gradient(90deg, #2c3e50 0%, #4ca1af 100%) !important;
+  border-bottom: 3px solid #18bc9c; 
+}
+
+/* 2. Global Heading Styles */
+h1, h2, h3 {
+  color: #2c3e50;
+  font-weight: 700;
+  margin-top: 1.5rem;
+}
+
+/* 3. Interactive Navbar Links */
+.nav-link {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #18bc9c !important;
+}
+
+/* 4. Page Background & Content Card */
+/* Applies the professional soft gradient to the full page background */
+.page-layout-full {
+  background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+  min-height: 100vh;
+}
+
+/* Makes the main content area look like a clean white card */
+#quarto-content {
+  padding: 40px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  margin-top: 20px;
+  margin-bottom: 60px; /* Add a larger bottom margin to make room for the footer */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* 5. Hero Banner Adjustments */
+/* Hides default titles to prevent duplicates */
+.quarto-title, .home .quarto-title-block {
+  display: none;
+}
+
+#quarto-document-content {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.hero-banner {
+  background: transparent !important; /* Let the page gradient show through */
+  padding: 80px 40px;
+  text-align: center;
+  border-bottom: none;
+}
+
+/* 6. Button Styling */
+.btn-lg {
+  width: 100%;
+  max-width: 300px;
+  margin: 10px auto;
+  display: block;
+  border-radius: 50px;
+  font-family: 'Fredoka', sans-serif;
+  transition: transform 0.2s ease;
+}
+
+.btn-lg:hover {
+  transform: translateY(-2px); /* Subtle lift effect on hover */
+}
+
+
+/* Ensures the footer stays at the bottom and has consistent styling */
+.nav-footer {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  background-color: #2c3e50; /* Match your navbar background */
+  color: white;
+  border-top: 1px solid #dee2e6;
+}
+
+.nav-footer-left, .nav-footer-right {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 0.9rem;
+}

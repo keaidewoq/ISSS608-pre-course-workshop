@@ -2,11 +2,15 @@ project:
   type: website
 
 website:
-  title: "ISSS608-VAA"
+  title: "ISSS608-Visual Analytics and Applications"
   navbar:
-    background: primary
-    search: true      
+    title: false
+    search: true
+    background: "#2c3e50"
+    collapse-below: lg      
     left: 
+      - icon: house-fill
+        href: index.qmd
       - text: "Hands-on Exercise"
         menu: 
           - text: "Hands-on Exercise 1"
@@ -25,6 +29,16 @@ website:
             href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04c.qmd"
           - text: "Hands-on Exercise 4d"
             href: "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04d.qmd"
+          - text: "Hands-on Exercise 5a"
+            href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05a.qmd"
+          - text: "Hands-on Exercise 5b"
+            href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05b.qmd"
+          - text: "Hands-on Exercise 5c"
+            href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05c.qmd"
+          - text: "Hands-on Exercise 5d"
+            href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05d.qmd"
+          - text: "Hands-on Exercise 5e"
+            href: "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05e.qmd"            
       - text: "Take-home Exercise"
         menu:
           - text: "Take-home Exercise 1"
@@ -42,20 +56,21 @@ website:
     right: 
       - text: "Made with Quarto"
         icon: heart-fill
+  
   back-to-top-navigation: true
-
+  
 format:
   html:
     theme: 
       light: flatly
-      dark: darkly
-    fontsize: 1.1em
-    linestretch: 1.5
     css: styles.css
+    google-resources: true
+    mainfont: "Fredoka" 
     toc: true
     toc-location: right
     smooth-scroll: true
     link-external-icon: true
     link-external-newwindow: true
+    page-layout: full
 
 editor: visual

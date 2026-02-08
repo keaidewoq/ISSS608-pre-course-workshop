@@ -1,0 +1,13 @@
+---
+title: "Hands-on Exercise 5c"
+author: "Xu Qianqian"
+date: "February 8, 2026"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+---
+
+# Heatmap for Visualising and Analysing Multivariate Data

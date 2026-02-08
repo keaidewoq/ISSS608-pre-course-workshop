@@ -1,5 +1,42 @@
 ---
-title: "ISSS608-VAA"
+title: "ISSS608-Visual Analytics & Applications"
+sidebar: false
+page-layout: full
+title-block-banner: false 
 ---
 
-Welcome to **ISSS608 Visual Analytics and Applications** homepage. In this website, you will find my coursework prepared for this course.
+<style>
+.hero-banner {
+  background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), 
+              url('background2.avif') no-repeat center center !important;
+  background-size: cover !important;
+  padding: 100px 40px;
+  text-align: center;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-banner h1, .hero-banner p {
+  color: #333333 !important;
+}
+</style>
+
+::: {.column-screen .hero-banner}
+# Visual Analytics Portfolio: ISSS608 📖
+
+Exploring the intersection of data science and design. 
+
+This site serves as a comprehensive record of my technical growth and projects within the ISSS608 curriculum.
+
+:::
+
+## 🚀 Featured Work
+
+::: {.column-page layout-ncol="2"}
+[Take-home Exercise 1](Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd){.btn .btn-outline-primary .btn-lg role="button"}
+
+[Hands-on Exercise 1](Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd){.btn .btn-outline-secondary .btn-lg role="button"}
+:::
