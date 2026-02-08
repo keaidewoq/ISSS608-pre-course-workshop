@@ -237,6 +237,19 @@ ul.task-list li input[type="checkbox"] {
 .hero-banner h1, .hero-banner p {
   color: #333333 !important;
 }
+
+/* Hide the default Quarto title block and breadcrumbs */
+header.quarto-title-block.entry, 
+.quarto-title, 
+.quarto-title-block {
+  display: none !important;
+}
+
+/* Remove extra whitespace at the top of the page */
+#quarto-document-content {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
 </style>
 <section id="visual-analytics-portfolio-isss608" class="level1 column-screen hero-banner">
 <h1>Visual Analytics Portfolio: ISSS608 📖</h1>

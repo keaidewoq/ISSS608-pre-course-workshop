@@ -5,6 +5,7 @@ page-layout: full
 title-block-banner: false 
 ---
 
+```{=html}
 <style>
 .hero-banner {
   background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), 
@@ -22,15 +23,28 @@ title-block-banner: false
 .hero-banner h1, .hero-banner p {
   color: #333333 !important;
 }
+
+/* Hide the default Quarto title block and breadcrumbs */
+header.quarto-title-block.entry, 
+.quarto-title, 
+.quarto-title-block {
+  display: none !important;
+}
+
+/* Remove extra whitespace at the top of the page */
+#quarto-document-content {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
 </style>
+```
 
 ::: {.column-screen .hero-banner}
 # Visual Analytics Portfolio: ISSS608 📖
 
-Exploring the intersection of data science and design. 
+Exploring the intersection of data science and design.
 
 This site serves as a comprehensive record of my technical growth and projects within the ISSS608 curriculum.
-
 :::
 
 ## 🚀 Featured Work
