@@ -316,7 +316,7 @@ The relationship between ethnic status and academic performance is highly signif
 -   **Note on Sample Size:** It is important to note the disparity in group sizes; the Minority Student cohort ($n=129$) is significantly smaller than the Non-Minority cohort ($n=2,041$), which may affect the comparative stability of these proportions.
 :::
 
-## 4.2 Economic Status
+### 4.1.4 Economic Status
 
 ::: panel-tabset
 ## Plot
@@ -443,7 +443,7 @@ ggplot(survey_data, aes(x = Poor_Stu, fill = Policy_Stu)) +
 -   Furthermore, the fact that a significant segment of the non-poor population also receives aid suggests that government eligibility is multi-faceted, likely incorporating merit-based or moderate-need criteria.
 :::
 
-## 4.3 Parental Professional Synergy
+## 4.2 Parental Professional Synergy
 
 This section analyzes the combined influence of parental occupations on student achievement, defined here as the combined percentage of "Good" and "Excellent" GPA tiers (GPA \> 3.2). By mapping these career intersections, we identify the Socio-Professional Capital that serves as a foundational driver for academic success.
 
@@ -565,9 +565,9 @@ ggplot(synergy_data, aes(x = Mother_Occupation, y = Father_Occupation, fill = su
 -   The lowest success rates (**0% to 10%**) are consistently associated with households where the mother's occupation is **"Not public"**, regardless of the father’s professional background.
 :::
 
-## 4.4 Intrinsic Drivers
+## 4.3 Intrinsic Drivers
 
-### 4.4.1 Parental Educational Background
+### 4.3.1 Parental Educational Background
 
 In this section, we analyze how parental educational background relates to students' academic performance. To facilitate a more direct comparison, parental education was consolidated into two distinct categories: **'Basic Education'** and **'Higher Education'**. Due to the ambiguous nature of the **'Other'** category, those responses were excluded from this specific analysis to ensure the integrity of the comparison between formal educational tiers.
 
@@ -711,7 +711,7 @@ The comparative analysis of parental education reveals a statistically significa
 -   **Statistical Significance:** The extremely low $p$-values ($p < .001$) across all groups confirm that these distributions are not random and that parental educational attainment is a robust indicator of a student's academic trajectory.
 :::
 
-### 4.4.2 Behavioral Habits & Time Usage
+### 4.3.2 Behavioral Habits & Time Usage
 
 In this section, we evaluate how time spent on studying, social media, and interacting with friends affects student performance. By calculating the success rate—defined as the percentage of students achieving a GPA of 3.2 or higher—across various time intervals, we aim to identify the ideal time commitment for each activity.
 
@@ -871,11 +871,11 @@ theme(
 To maximize success, the data suggests prioritizing **6+ hours of study**, limiting social media to **under 4 hours**, and maintaining a balanced **1–2 hours of social interaction**.
 :::
 
-## 4.5 Institutional & Environmental Factors
+## 4.4 Institutional & Environmental Factors
 
 This section evaluates the institutional environment and its perceived influence on learning. By analyzing student assessments of teaching methods, faculty accessibility, and infrastructure, we identify the primary environmental drivers of the academic experience.
 
-### 4.5.1 The Academic & Institutional Ecosystem
+### 4.4.1 The Academic & Institutional Ecosystem
 
 A 100% stacked bar chart illustrates student perceptions across various environmental factors and their perceived influence on learning outcomes. By arranging the factors in descending order of 'Very' ratings, the chart highlights the elements students identify as having the most significant impact on their academic experience.
 
@@ -1025,7 +1025,7 @@ ggplot(likert_long, aes(x = Variable, fill = Response)) +
 A granular analysis of the environment reveals that **Lecturer Quality** is the sole institutional factor to exceed the 50% threshold for 'Very' responses. This positions instructional excellence as the singular dominant strength of the academic ecosystem, while all other factors—including lecturer support, facilities, and curriculum—are perceived as secondary drivers of the student experience.
 :::
 
-### 4.5.2 Systemic Interdependencies
+### 4.4.2 Systemic Interdependencies
 
 This section examines the underlying relationships between student perceptions and academic achievement, utilizing Spearman’s Rank Correlation to identify which environmental drivers are most strongly linked to GPA outcomes.
 
