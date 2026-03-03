@@ -46,11 +46,3 @@ Exploring the intersection of data science and design.
 
 This site serves as a comprehensive record of my technical growth and projects within the ISSS608 curriculum.
 :::
-
-## 🚀 Featured Work
-
-::: {.column-page layout-ncol="2"}
-[Take-home Exercise 1](Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd){.btn .btn-outline-primary .btn-lg role="button"}
-
-[Hands-on Exercise 1](Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd){.btn .btn-outline-secondary .btn-lg role="button"}
-:::
