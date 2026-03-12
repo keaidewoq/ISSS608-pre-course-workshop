@@ -22,9 +22,9 @@ Student outcomes are influenced by a diverse array of factors. Understanding the
 
 For this take-home exercise, both descriptive and inferential methods are employed to explore survey data. Utilizing visually-driven analysis, this report reveals and communicates key observations. The primary focus is on identifying patterns, trends, and relationships within the responses to interpret results effectively and inform data-driven decision-making.
 
-# 2 Install and load Packages
+# 2 Install and Load Packages
 
-In this exercise, we will utilize eight R packages to facilitate data import, manipulation, and advanced visualization:
+In this exercise, we will utilize five R packages to facilitate data import, manipulation, and advanced visualization:
 
 -   **readxl**: For importing data from Excel spreadsheets.
 
