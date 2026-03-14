@@ -18,9 +18,11 @@ This project aims to develop a robust predictive model to identify customer chur
 
 ## 2 Install and Load Packages
 
-In this project, we utilize eighteen R packages to facilitate data import, manipulation, and advanced visualization:
+In this project, we utilize twelve R packages to facilitate data import, manipulation, and advanced visualization:
 
 -   **`tidyverse`**: A collection of fundamental R packages designed for data science, covering everything from data cleaning to creating static statistical graphs.
+
+-   **`tidymodels`**: A "meta-package" (like the tidyverse) designed for **modeling and machine learning**. It provides a consistent framework for preprocessing, training, and validating models.
 
 -   **`naniar`**: Provides a suite of functions to tidy, visualize, and analyze **missing data** (NAs)
 
@@ -28,15 +30,11 @@ In this project, we utilize eighteen R packages to facilitate data import, manip
 
 -   **`knitr`**: The engine behind **dynamic report generation** in R. It integrates R code into Markdown, LaTeX, or HTML documents, allowing you to "knit" your analysis into a finished report.
 
--   **`dplyr`**: It's the package for **filtering, selecting, mutating, and summarizing** dataframes using a clean, readable syntax.
-
 -   **`kableExtra`**: An extension for `knitr::kable()` that provides advanced styling options for **HTML and PDF tables**, such as striped rows, hover effects, and complex headers.
 
 -   **`patchwork`**: Makes **combining multiple ggplots** incredibly simple.
 
 -   **`corrplot`**: A graphical display of a **correlation matrix**. It helps you quickly identify patterns and strengths of relationships between variables using colors and shapes.
-
--   **`tidymodels`**: A "meta-package" (like the tidyverse) designed for **modeling and machine learning**. It provides a consistent framework for preprocessing, training, and validating models.
 
 -   **`ranger`**: A fast implementation of **Random Forests**. It is highly memory-efficient and particularly well-suited for high-dimensional data.
 
@@ -46,18 +44,12 @@ In this project, we utilize eighteen R packages to facilitate data import, manip
 
 -   **`car`**: provides advanced statistical tests and diagnostic tools—such as the `vif()` function—to evaluate, troubleshoot, and refine regression models.
 
--   **`rsample`**: provides the tools to split your data into training and testing sets, as well as create resampled data like cross-validation folds.
-
--   **`tune`**: helps optimize your machine learning models by testing and finding the best possible hyperparameter values.
-
--   **`parsnip`**: gives a single, standardized interface to build and fit various types of machine learning models
-
--   **`workflows`**: simplifies your coding pipeline by bundling your data pre-processing steps and the `parsnip` model into one cohesive object that can be trained and tested together.
-
--   **`yardstick`**: provides a consistent, tidy interface for calculating model performance metrics
-
 ```{r}
-pacman::p_load(tidyverse, naniar, skimr, knitr, dplyr,kableExtra, patchwork, corrplot, tidymodels,ranger, xgboost,vip,car, rsample, tune, parsnip, workflows, yardstick)
+pacman::p_load(
+  tidyverse, tidymodels, naniar, skimr, knitr, 
+  kableExtra, patchwork, corrplot, ranger, 
+  xgboost, vip, car
+)
 ```
 
 ## 3 Data Preparation

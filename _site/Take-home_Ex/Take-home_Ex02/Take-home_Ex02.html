@@ -368,29 +368,27 @@ window.Quarto = {
 </section>
 <section id="install-and-load-packages" class="level2">
 <h2 class="anchored" data-anchor-id="install-and-load-packages">2 Install and Load Packages</h2>
-<p>In this project, we utilize eighteen R packages to facilitate data import, manipulation, and advanced visualization:</p>
+<p>In this project, we utilize twelve R packages to facilitate data import, manipulation, and advanced visualization:</p>
 <ul>
 <li><p><strong><code>tidyverse</code></strong>: A collection of fundamental R packages designed for data science, covering everything from data cleaning to creating static statistical graphs.</p></li>
+<li><p><strong><code>tidymodels</code></strong>: A “meta-package” (like the tidyverse) designed for <strong>modeling and machine learning</strong>. It provides a consistent framework for preprocessing, training, and validating models.</p></li>
 <li><p><strong><code>naniar</code></strong>: Provides a suite of functions to tidy, visualize, and analyze <strong>missing data</strong> (NAs)</p></li>
 <li><p><strong><code>skimr</code></strong>: A tool for <strong>quick data assessment</strong>. It produces a “skim” of a dataframe, providing summary statistics (mean, SD, quantiles) and tiny inline histograms (sparklines) for a fast overview of distributions.</p></li>
 <li><p><strong><code>knitr</code></strong>: The engine behind <strong>dynamic report generation</strong> in R. It integrates R code into Markdown, LaTeX, or HTML documents, allowing you to “knit” your analysis into a finished report.</p></li>
-<li><p><strong><code>dplyr</code></strong>: It’s the package for <strong>filtering, selecting, mutating, and summarizing</strong> dataframes using a clean, readable syntax.</p></li>
 <li><p><strong><code>kableExtra</code></strong>: An extension for <code>knitr::kable()</code> that provides advanced styling options for <strong>HTML and PDF tables</strong>, such as striped rows, hover effects, and complex headers.</p></li>
 <li><p><strong><code>patchwork</code></strong>: Makes <strong>combining multiple ggplots</strong> incredibly simple.</p></li>
 <li><p><strong><code>corrplot</code></strong>: A graphical display of a <strong>correlation matrix</strong>. It helps you quickly identify patterns and strengths of relationships between variables using colors and shapes.</p></li>
-<li><p><strong><code>tidymodels</code></strong>: A “meta-package” (like the tidyverse) designed for <strong>modeling and machine learning</strong>. It provides a consistent framework for preprocessing, training, and validating models.</p></li>
 <li><p><strong><code>ranger</code></strong>: A fast implementation of <strong>Random Forests</strong>. It is highly memory-efficient and particularly well-suited for high-dimensional data.</p></li>
 <li><p><strong><code>xgboost</code></strong>: An interface for <strong>Extreme Gradient Boosting</strong>. It’s a powerful, scalable library used for gradient-boosted decision trees, often favored in data science competitions for its speed and performance.</p></li>
 <li><p><strong><code>vip</code></strong>: Stands for <strong>Variable Importance Plots</strong>. It extracts and visualizes the importance of features in various machine learning models, helping you understand which variables are driving your model’s predictions.</p></li>
 <li><p><strong><code>car</code></strong>: provides advanced statistical tests and diagnostic tools—such as the <code>vif()</code> function—to evaluate, troubleshoot, and refine regression models.</p></li>
-<li><p><strong><code>rsample</code></strong>: provides the tools to split your data into training and testing sets, as well as create resampled data like cross-validation folds.</p></li>
-<li><p><strong><code>tune</code></strong>: helps optimize your machine learning models by testing and finding the best possible hyperparameter values.</p></li>
-<li><p><strong><code>parsnip</code></strong>: gives a single, standardized interface to build and fit various types of machine learning models</p></li>
-<li><p><strong><code>workflows</code></strong>: simplifies your coding pipeline by bundling your data pre-processing steps and the <code>parsnip</code> model into one cohesive object that can be trained and tested together.</p></li>
-<li><p><strong><code>yardstick</code></strong>: provides a consistent, tidy interface for calculating model performance metrics</p></li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, naniar, skimr, knitr, dplyr,kableExtra, patchwork, corrplot, tidymodels,ranger, xgboost,vip,car, rsample, tune, parsnip, workflows, yardstick)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  tidyverse, tidymodels, naniar, skimr, knitr, </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  kableExtra, patchwork, corrplot, ranger, </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  xgboost, vip, car</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="data-preparation" class="level2">
