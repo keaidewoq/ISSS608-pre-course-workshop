@@ -306,9 +306,16 @@ window.Quarto = {
   <li><a href="#building-predictive-models" id="toc-building-predictive-models" class="nav-link" data-scroll-target="#building-predictive-models">5 Building Predictive Models</a>
   <ul class="collapse">
   <li><a href="#create-the-preprocessing-recipe" id="toc-create-the-preprocessing-recipe" class="nav-link" data-scroll-target="#create-the-preprocessing-recipe">5.1 Create the Preprocessing Recipe</a></li>
-  <li><a href="#define-and-fit-the-models" id="toc-define-and-fit-the-models" class="nav-link" data-scroll-target="#define-and-fit-the-models">5.2 Define and Fit the Models</a></li>
+  <li><a href="#tune-and-fit-the-models" id="toc-tune-and-fit-the-models" class="nav-link" data-scroll-target="#tune-and-fit-the-models">5.2 Tune and Fit the Models</a></li>
+  <li><a href="#model-performance-and-comparison" id="toc-model-performance-and-comparison" class="nav-link" data-scroll-target="#model-performance-and-comparison">5.3 Model Performance and Comparison</a></li>
+  <li><a href="#variable-importance-random-forest" id="toc-variable-importance-random-forest" class="nav-link" data-scroll-target="#variable-importance-random-forest">5.4 Variable Importance (Random Forest)</a></li>
+  <li><a href="#business-takeaway" id="toc-business-takeaway" class="nav-link" data-scroll-target="#business-takeaway">5.5 Business Takeaway</a></li>
   </ul></li>
-  <li><a href="#ui-design" id="toc-ui-design" class="nav-link" data-scroll-target="#ui-design">6 UI Design</a></li>
+  <li><a href="#ui-design" id="toc-ui-design" class="nav-link" data-scroll-target="#ui-design">6 UI Design</a>
+  <ul class="collapse">
+  <li><a href="#tab-1-macro-view-strategic-oversight" id="toc-tab-1-macro-view-strategic-oversight" class="nav-link" data-scroll-target="#tab-1-macro-view-strategic-oversight">Tab 1: Macro View (Strategic Oversight)</a></li>
+  <li><a href="#tab-2-micro-view-operational-simulation" id="toc-tab-2-micro-view-operational-simulation" class="nav-link" data-scroll-target="#tab-2-micro-view-operational-simulation">Tab 2: Micro View (Operational Simulation)</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -342,7 +349,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 11, 2026</p>
+      <p class="date-modified">March 14, 2026</p>
     </div>
   </div>
     
@@ -361,7 +368,7 @@ window.Quarto = {
 </section>
 <section id="install-and-load-packages" class="level2">
 <h2 class="anchored" data-anchor-id="install-and-load-packages">2 Install and Load Packages</h2>
-<p>In this project, we utilize thirteen R packages to facilitate data import, manipulation, and advanced visualization:</p>
+<p>In this project, we utilize eighteen R packages to facilitate data import, manipulation, and advanced visualization:</p>
 <ul>
 <li><p><strong><code>tidyverse</code></strong>: A collection of fundamental R packages designed for data science, covering everything from data cleaning to creating static statistical graphs.</p></li>
 <li><p><strong><code>naniar</code></strong>: Provides a suite of functions to tidy, visualize, and analyze <strong>missing data</strong> (NAs)</p></li>
@@ -376,9 +383,14 @@ window.Quarto = {
 <li><p><strong><code>xgboost</code></strong>: An interface for <strong>Extreme Gradient Boosting</strong>. It’s a powerful, scalable library used for gradient-boosted decision trees, often favored in data science competitions for its speed and performance.</p></li>
 <li><p><strong><code>vip</code></strong>: Stands for <strong>Variable Importance Plots</strong>. It extracts and visualizes the importance of features in various machine learning models, helping you understand which variables are driving your model’s predictions.</p></li>
 <li><p><strong><code>car</code></strong>: provides advanced statistical tests and diagnostic tools—such as the <code>vif()</code> function—to evaluate, troubleshoot, and refine regression models.</p></li>
+<li><p><strong><code>rsample</code></strong>: provides the tools to split your data into training and testing sets, as well as create resampled data like cross-validation folds.</p></li>
+<li><p><strong><code>tune</code></strong>: helps optimize your machine learning models by testing and finding the best possible hyperparameter values.</p></li>
+<li><p><strong><code>parsnip</code></strong>: gives a single, standardized interface to build and fit various types of machine learning models</p></li>
+<li><p><strong><code>workflows</code></strong>: simplifies your coding pipeline by bundling your data pre-processing steps and the <code>parsnip</code> model into one cohesive object that can be trained and tested together.</p></li>
+<li><p><strong><code>yardstick</code></strong>: provides a consistent, tidy interface for calculating model performance metrics</p></li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, naniar, skimr, knitr, dplyr,kableExtra, patchwork, corrplot, tidymodels,ranger, xgboost,vip,car)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, naniar, skimr, knitr, dplyr,kableExtra, patchwork, corrplot, tidymodels,ranger, xgboost,vip,car, rsample, tune, parsnip, workflows, yardstick)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="data-preparation" class="level2">
@@ -404,14 +416,26 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="preparing-the-data">3.3 Preparing the Data</h3>
 <section id="check-missing-values" class="level4">
 <h4 class="anchored" data-anchor-id="check-missing-values">3.3.1 Check Missing Values</h4>
+<p>I use <code>gg_miss_var(customer_data)</code> to get an instant, clear picture of <strong>which columns in the dataset are missing the most information</strong>. Instead of scrolling through a massive table of <code>NA</code> counts, this function (from the <code>naniar</code> package) generates a simple bar chart.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Code</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize missingness in customer data</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">gg_miss_var</span>(customer_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
 <p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize missingness in customer data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">gg_miss_var</span>(customer_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </div>
 </div>
 </div>
@@ -433,7 +457,7 @@ window.Quarto = {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -485,7 +509,7 @@ window.Quarto = {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -494,6 +518,12 @@ window.Quarto = {
 </section>
 <section id="statistical-summary-of-data" class="level5">
 <h5 class="anchored" data-anchor-id="statistical-summary-of-data">3.3.2.3 Statistical Summary of Data</h5>
+<p>I use <code>skim()</code> because standard functions like <code>summary()</code> or <code>str()</code> become an unreadable wall of text when we have 57 variables.</p>
+<p>Here is exactly why it is the most efficient choice for a wide dataset:</p>
+<ul>
+<li><p><strong>Instant Organization:</strong> It automatically groups the 57 variables by data type (numeric, character, factor, etc.) into clean, separate tables, making the output much easier to navigate.</p></li>
+<li><p><strong>Inline Distributions:</strong> For numeric data, it generates tiny inline histograms (sparklines) directly in the console. This lets us spot skewed distributions, outliers, or weird patterns at a glance without having to plot dozens of individual charts.</p></li>
+</ul>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>customer_data_final <span class="sc">%&gt;%</span> </span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1491,21 +1521,22 @@ Table&nbsp;1: Summary of Excluded Variables and Rationalization
 <h3 class="anchored" data-anchor-id="univariate-distribution-analysis">4.2 Univariate distribution Analysis</h3>
 <section id="distribution-of-target-variable" class="level4">
 <h4 class="anchored" data-anchor-id="distribution-of-target-variable">4.2.1 Distribution of Target Variable</h4>
+<p>Combining a histogram with a density curve provides the most comprehensive view of the overall distribution for the <code>churn_probability</code>. The histogram reveals the granular details and exact data bins, highlighting specific spikes or gaps in the actual risk scores. Meanwhile, the overlaid density curve smooths out this noise, allowing us to instantly identify the overarching shape and trends of the customer baseline risk.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Code</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">Code</a></li></ul>
 <div class="tab-content">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(modeling_data, <span class="fu">aes</span>(<span class="at">x =</span> churn_probability)) <span class="sc">+</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..density..), <span class="at">bins =</span> <span class="dv">30</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
@@ -1548,10 +1579,11 @@ Table&nbsp;1: Summary of Excluded Variables and Rationalization
 </section>
 <section id="distribution-of-numerical-variables" class="level4">
 <h4 class="anchored" data-anchor-id="distribution-of-numerical-variables">4.2.2 Distribution of Numerical Variables</h4>
+<p>I used faceted boxplots to efficiently visualize the distribution and spread of all the numerical variables simultaneously, regardless of their differing scales. This visual approach allows us to instantly identify data anomalies, as it automatically isolates and flags potential outliers falling beyond 1.5 times the Interquartile Range (IQR) in red.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false" href="">Code</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">Code</a></li></ul>
 <div class="tab-content">
-<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-outlier-detection" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -1567,7 +1599,7 @@ Figure&nbsp;1: Outlier detection for all numerical features
 </div>
 </div>
 </div>
-<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Identify all numeric variables</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>numeric_cols <span class="ot">&lt;-</span> modeling_data <span class="sc">%&gt;%</span> </span>
@@ -1604,21 +1636,22 @@ Figure&nbsp;1: Outlier detection for all numerical features
 </section>
 <section id="correlation-matrix" class="level3">
 <h3 class="anchored" data-anchor-id="correlation-matrix">4.3 Correlation Matrix</h3>
+<p>I use <code>corrplot</code> to instantly visualize the strength and direction of relationships between all the numeric variables, making it easy to spot potential multicollinearity before modeling. By using hierarchical clustering (<code>order = "hclust"</code>), the plot automatically groups highly correlated variables together so patterns stand out naturally. Furthermore, overlaying the exact numbers (<code>addCoef.col</code>) gives us the precise correlation coefficients alongside the color-coded heatmap, providing both a big-picture summary and granular detail in a single chart.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false" href="">Code</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false" href="">Code</a></li></ul>
 <div class="tab-content">
-<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </div>
-<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Isolate numeric variables </span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>numeric_vars <span class="ot">&lt;-</span> modeling_data <span class="sc">%&gt;%</span> </span>
@@ -1658,6 +1691,12 @@ Figure&nbsp;1: Outlier detection for all numerical features
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># List final column names </span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(modeling_data_final)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details>
+<summary>
+Click to reveal final column names
+</summary>
+<div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "age"                        "gender"                    
  [3] "location"                   "income_bracket"            
@@ -1680,6 +1719,7 @@ Figure&nbsp;1: Outlier detection for all numerical features
 [37] "frequency"                  "tenure"                    </code></pre>
 </div>
 </div>
+</details>
 </section>
 <section id="stratified-random-sampling" class="level3">
 <h3 class="anchored" data-anchor-id="stratified-random-sampling">4.4 Stratified Random Sampling</h3>
@@ -1716,6 +1756,12 @@ Figure&nbsp;1: Outlier detection for all numerical features
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This will show you the exact variables that are perfectly correlated</span></span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">alias</span>(my_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details>
+<summary>
+Click to reveal <em>Perfect</em> Multicollinearity
+</summary>
+<div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>Model :
 churn_probability ~ age + gender + location + income_bracket + 
@@ -1801,11 +1847,18 @@ product_satisfaction   0                         0                       0
 product_satisfaction   0         0   </code></pre>
 </div>
 </div>
+</details>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fits the model without the redundant average column</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>my_model_fixed <span class="ot">&lt;-</span> <span class="fu">lm</span>(churn_probability <span class="sc">~</span> . <span class="sc">-</span> product_satisfaction, <span class="at">data =</span> train_data)</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate VIF</span></span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(my_model_fixed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<details>
+<summary>
+Click to reveal <em>VIF</em> result
+</summary>
+<div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>                               GVIF Df GVIF^(1/(2*Df))
 age                        1.336399  1        1.156027
@@ -1846,6 +1899,7 @@ frequency                  4.825732  1        2.196755
 tenure                     1.141237  1        1.068287</code></pre>
 </div>
 </div>
+</details>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove the variables from the training data</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> train_data <span class="sc">%&gt;%</span></span>
@@ -1889,115 +1943,280 @@ tenure                     1.141237  1        1.068287</code></pre>
 <span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_normalize</span>(<span class="fu">all_numeric_predictors</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="define-and-fit-the-models" class="level3">
-<h3 class="anchored" data-anchor-id="define-and-fit-the-models">5.2 Define and Fit the Models</h3>
-<section id="define-random-forest" class="level4">
-<h4 class="anchored" data-anchor-id="define-random-forest">5.2.1 Define Random Forest</h4>
+<section id="tune-and-fit-the-models" class="level3">
+<h3 class="anchored" data-anchor-id="tune-and-fit-the-models">5.2 Tune and Fit the Models</h3>
+<section id="the-tuning-phase" class="level4">
+<h4 class="anchored" data-anchor-id="the-tuning-phase">5.2.1 The Tuning Phase</h4>
+<section id="set-up-cross-validation-folds" class="level5">
+<h5 class="anchored" data-anchor-id="set-up-cross-validation-folds">5.2.1.1 Set Up Cross-Validation Folds</h5>
+<p>Instead of training on the entire dataset at once, cross-validation splits training data into multiple “folds.” The model trains on a subset and evaluates on the holdout fold, repeating this process to ensure it generalizes well to unseen data.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define Random Forest</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>rf_spec <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">trees =</span> <span class="dv">500</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">importance =</span> <span class="st">"impurity"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model</span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>rf_fit <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(churn_recipe) <span class="sc">%&gt;%</span></span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_spec) <span class="sc">%&gt;%</span></span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> train_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create 5 folds for cross-validation </span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>) <span class="co"># For reproducibility</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>churn_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(train_data, <span class="at">v =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="define-xgboost" class="level4">
-<h4 class="anchored" data-anchor-id="define-xgboost">5.2.2 Define XGBoost</h4>
+<section id="tag-hyperparameters-for-tuning" class="level5">
+<h5 class="anchored" data-anchor-id="tag-hyperparameters-for-tuning">5.2.1.2 Tag Hyperparameters for Tuning</h5>
+<ul>
+<li><p><strong>For Random Forest:</strong> We typically tune <code>mtry</code> (number of predictors sampled at each split) and <code>min_n</code> (minimum data points in a node).</p></li>
+<li><p><strong>For XGBoost:</strong> We typically tune <code>trees</code>, <code>learn_rate</code>, and <code>tree_depth</code>.</p></li>
+</ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>xgb_spec <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">trees =</span> <span class="dv">1000</span>, <span class="at">learn_rate =</span> <span class="fl">0.01</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model</span></span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>xgb_fit <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(churn_recipe) <span class="sc">%&gt;%</span></span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(xgb_spec) <span class="sc">%&gt;%</span></span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> train_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tunable Random Forest Spec</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>rf_tune_spec <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">trees =</span> <span class="dv">500</span>, </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">mtry =</span> <span class="fu">tune</span>(), </span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_n =</span> <span class="fu">tune</span>()</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>, <span class="at">importance =</span> <span class="st">"impurity"</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Tunable XGBoost Spec</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>xgb_tune_spec <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">trees =</span> <span class="fu">tune</span>(), </span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">learn_rate =</span> <span class="fu">tune</span>(), </span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">tree_depth =</span> <span class="fu">tune</span>()</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"xgboost"</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="performance-comparison" class="level4">
-<h4 class="anchored" data-anchor-id="performance-comparison">5.2.3 Performance Comparison</h4>
+<section id="build-the-tuning-workflows" class="level5">
+<h5 class="anchored" data-anchor-id="build-the-tuning-workflows">5.2.1.3 Build the Tuning Workflows</h5>
+<p>Attach recipe and the new tunable specifications to workflows.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare results</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(rf_fit, test_data) <span class="sc">%&gt;%</span> <span class="fu">bind_cols</span>(test_data) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Random Forest"</span>),</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(xgb_fit, test_data) <span class="sc">%&gt;%</span> <span class="fu">bind_cols</span>(test_data) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"XGBoost"</span>)</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate RMSE and R-Squared</span></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>results <span class="sc">%&gt;%</span></span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(model) <span class="sc">%&gt;%</span></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">metrics</span>(<span class="at">truth =</span> churn_probability, <span class="at">estimate =</span> .pred)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 4
-  model         .metric .estimator .estimate
-  &lt;chr&gt;         &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-1 Random Forest rmse    standard      0.0598
-2 XGBoost       rmse    standard      0.0593
-3 Random Forest rsq     standard      0.208 
-4 XGBoost       rsq     standard      0.216 
-5 Random Forest mae     standard      0.0484
-6 XGBoost       mae     standard      0.0474</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>rf_tune_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span>  </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(churn_recipe) <span class="sc">%&gt;%</span>  </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_tune_spec)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>xgb_tune_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span>  </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(churn_recipe) <span class="sc">%&gt;%</span>  </span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(xgb_tune_spec)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="performance-visualisation" class="level4">
-<h4 class="anchored" data-anchor-id="performance-visualisation">5.2.4 Performance Visualisation</h4>
+<section id="run-the-grid-search" class="level5">
+<h5 class="anchored" data-anchor-id="run-the-grid-search">5.2.1.4 Run the Grid Search</h5>
+<p>In this step, we perform hyperparameter tuning for both the Random Forest and XGBoost models. Using the 5 cross-validation folds created earlier, we test a grid of 5 distinct parameter combinations to identify the optimal settings that yield the lowest error rate.</p>
+<p><strong>Note on Computation:</strong> Because grid search and cross-validation require training dozens of individual models, this process is highly computationally expensive. To prevent the Quarto document from taking an extensive amount of time to render, the code chunk below is set to <code>eval=FALSE</code>. The tuning was executed once locally, and the final result objects were saved as <code>.rds</code> (R Data) files. We will simply load these pre-computed results in the next step.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Performance Visualization: Predicted vs. Actual</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>p_perf <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(results, <span class="fu">aes</span>(<span class="at">x =</span> churn_probability, <span class="at">y =</span> .pred, <span class="at">color =</span> model)) <span class="sc">+</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">lty =</span> <span class="dv">2</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co"># The 'perfect prediction' line</span></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>model) <span class="sc">+</span></span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Model Competition: Predicted vs. Actual Churn Probability"</span>,</span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Proximity to the dashed line indicates higher predictive accuracy"</span>,</span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Actual Probability"</span>, <span class="at">y =</span> <span class="st">"Predicted Probability"</span>)</span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Variable Importance Visualization</span></span>
-<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Random Forest VIP</span></span>
-<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>vip_rf <span class="ot">&lt;-</span> rf_fit <span class="sc">%&gt;%</span> </span>
-<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit_parsnip</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vip</span>(<span class="at">num_features =</span> <span class="dv">10</span>) <span class="sc">+</span> </span>
-<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Random Forest: Top 10 Drivers"</span>)</span>
-<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a><span class="co"># XGBoost VIP</span></span>
-<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>vip_xgb <span class="ot">&lt;-</span> xgb_fit <span class="sc">%&gt;%</span> </span>
-<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit_parsnip</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vip</span>(<span class="at">num_features =</span> <span class="dv">10</span>) <span class="sc">+</span> </span>
-<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"XGBoost: Top 10 Drivers"</span>)</span>
-<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the performance plot</span></span>
-<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a>p_perf</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tune Random Forest</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">456</span>)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>rf_tune_results <span class="ot">&lt;-</span> <span class="fu">tune_grid</span>(</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  rf_tune_wf,</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> churn_folds,</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">grid =</span> <span class="dv">5</span> <span class="co"># Tests 5 different combinations</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Tune XGBoost</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">789</span>)</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>xgb_tune_results <span class="ot">&lt;-</span> <span class="fu">tune_grid</span>(</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>  xgb_tune_wf,</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> churn_folds,</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">grid =</span> <span class="dv">5</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(rf_tune_results, <span class="st">"rf_tune_results.rds"</span>)</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(xgb_tune_results, <span class="st">"xgb_tune_results.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Just load the finished results instantly:</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>rf_tune_results <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"rf_tune_results.rds"</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>xgb_tune_results <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"xgb_tune_results.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="the-finalizing-and-fitting-phase" class="level4">
+<h4 class="anchored" data-anchor-id="the-finalizing-and-fitting-phase">5.2.2 The Finalizing and Fitting phase</h4>
+<p>Once the tuning finishes, we can extract the best performing hyperparameter combination (e.g., the one with the lowest Root Mean Squared Error, or RMSE) and finalize the workflow.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the best parameters based on lowest RMSE</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>best_rf_params <span class="ot">&lt;-</span> <span class="fu">select_best</span>(rf_tune_results, <span class="at">metric =</span> <span class="st">"rmse"</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>best_xgb_params <span class="ot">&lt;-</span> <span class="fu">select_best</span>(xgb_tune_results, <span class="at">metric =</span> <span class="st">"rmse"</span>)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plug those best parameters back into the workflows</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>final_rf_wf <span class="ot">&lt;-</span> <span class="fu">finalize_workflow</span>(rf_tune_wf, best_rf_params)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>final_xgb_wf <span class="ot">&lt;-</span> <span class="fu">finalize_workflow</span>(xgb_tune_wf, best_xgb_params)</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Now you can fit these finalized models to full training data!</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>final_rf_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(final_rf_wf, <span class="at">data =</span> train_data)</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>final_xgb_fit <span class="ot">&lt;-</span> <span class="fu">fit</span>(final_xgb_wf, <span class="at">data =</span> train_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="model-performance-and-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="model-performance-and-comparison">5.3 Model Performance and Comparison</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false" href="">Code</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine and display VIP plots side-by-side</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>vip_rf <span class="sc">+</span> vip_xgb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Generate predictions on the test dataset</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># augment() automatically attaches the predictions (.pred) to test data</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>rf_test_preds <span class="ot">&lt;-</span> <span class="fu">augment</span>(final_rf_fit, <span class="at">new_data =</span> test_data)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>xgb_test_preds <span class="ot">&lt;-</span> <span class="fu">augment</span>(final_xgb_fit, <span class="at">new_data =</span> test_data)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Define the metrics we want to calculate</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>churn_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(rmse, rsq, mae)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Calculate the metrics for Random Forest</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>rf_results <span class="ot">&lt;-</span> <span class="fu">churn_metrics</span>(rf_test_preds, <span class="at">truth =</span> churn_probability, <span class="at">estimate =</span> .pred) <span class="sc">%&gt;%</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Random Forest"</span>)</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Calculate the metrics for XGBoost</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>xgb_results <span class="ot">&lt;-</span> <span class="fu">churn_metrics</span>(xgb_test_preds, <span class="at">truth =</span> churn_probability, <span class="at">estimate =</span> .pred) <span class="sc">%&gt;%</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"XGBoost"</span>)</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Combine the results into one clean comparison table</span></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>model_comparison <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(rf_results, xgb_results) <span class="sc">%&gt;%</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, .metric, .estimate) <span class="sc">%&gt;%</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(.metric, .estimate)</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a faceted bar chart</span></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(model_comparison, <span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> .estimate, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.6</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add labels on top of bars for clarity</span></span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(.estimate, <span class="dv">4</span>)), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Split by metric and give each its own Y-axis scale</span></span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> .metric, <span class="at">scales =</span> <span class="st">"free_y"</span>, </span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>             <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">.metric =</span> <span class="fu">c</span>(</span>
+<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>               <span class="at">mae =</span> <span class="st">"MAE"</span>, </span>
+<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>               <span class="at">rmse =</span> <span class="st">"RMSE"</span>, </span>
+<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>               <span class="at">rsq =</span> <span class="st">"R-Squared"</span></span>
+<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a>             ))) <span class="sc">+</span></span>
+<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Clean up the look</span></span>
+<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Random Forest"</span> <span class="ot">=</span> <span class="st">"#2c3e50"</span>, <span class="st">"XGBoost"</span> <span class="ot">=</span> <span class="st">"#e74c3c"</span>)) <span class="sc">+</span></span>
+<span id="cb40-36"><a href="#cb40-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb40-37"><a href="#cb40-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Performance Comparison: Random Forest vs. XGBoost"</span>,</span>
+<span id="cb40-38"><a href="#cb40-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb40-39"><a href="#cb40-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Metric Value"</span></span>
+<span id="cb40-40"><a href="#cb40-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb40-41"><a href="#cb40-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb40-42"><a href="#cb40-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb40-43"><a href="#cb40-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">11</span>),</span>
+<span id="cb40-44"><a href="#cb40-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
+<span id="cb40-45"><a href="#cb40-45" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</div>
+<p>Overall, the <strong>Random Forest</strong> model marginally outperformed the XGBoost model across all evaluated metrics, making it the preferred model for this analysis.</p>
+</section>
+<section id="variable-importance-random-forest" class="level3">
+<h3 class="anchored" data-anchor-id="variable-importance-random-forest">5.4 Variable Importance (Random Forest)</h3>
+<p>To understand what drives the model’s predictions, we extract the variable importance scores from the finalized Random Forest model. These scores indicate how much each feature contributes to reducing the prediction error (measured by node impurity).</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false" href="">Code</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
+<div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-31-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex02_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
+</div>
+<div id="tabset-6-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-2-tab">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract the fitted model from the workflow and generate the plot</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>final_rf_fit <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">extract_fit_parsnip</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vip</span>(</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">num_features =</span> <span class="dv">10</span>, <span class="co"># Shows the top 15 most important variables</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">geom =</span> <span class="st">"col"</span>, </span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">aesthetics =</span> <span class="fu">list</span>(<span class="at">fill =</span> <span class="st">"#2c3e50"</span>) <span class="co"># Matches the color scheme from the previous plot</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Top 10 Most Important Variables: Random Forest"</span>,</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Importance Score"</span>,</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predictor Variable"</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>) <span class="co"># Makes variable names easier to read</span></span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Interpreting the Key Drivers of Churn
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We can group these primary drivers into four distinct business categories:</p>
+<ul>
+<li><p><strong>Demographics (<code>age</code>, <code>household_size</code>):</strong> Interestingly, <code>age</code> is the single most dominant predictor of churn in this dataset. This indicates that a customer’s life stage or generational cohort heavily dictates their likelihood of leaving the service. <code>household_size</code> also appears in the top 10, suggesting that family dynamics influence retention.</p></li>
+<li><p><strong>Digital &amp; Transactional Engagement (<code>app_logins_frequency</code>, <code>weekend_transaction_ratio</code>, <code>recency</code>, <code>frequency</code>):</strong> How customers interact with the platform is a massive signal. The frequency of app logins and the recency of their last action are classic indicators of engagement. Furthermore, behavioral patterns, such as the proportion of transactions happening on weekends, provide strong signals to the model about a user’s routine and potential drop-off.</p></li>
+<li><p><strong>Customer Sentiment &amp; Loyalty (<code>nps_score</code>, <code>customer_lifetime_value</code>, <code>tenure</code>):</strong> Direct customer feedback (<code>nps_score</code>) is the third most important variable, confirming that stated satisfaction strongly correlates with actual churn behavior. Additionally, historical loyalty metrics (<code>tenure</code> and <code>customer_lifetime_value</code>) are heavily weighed by the model to assess risk.</p></li>
+<li><p><strong>Financial Indicators (<code>credit_utilization_ratio</code>):</strong> A customer’s financial footprint, specifically how much of their available credit they are utilizing, acts as a key variable. High or low utilization could be indicative of financial stress or shifting to a competitor’s product.</p></li>
+</ul>
+</div>
+</div>
 </section>
+<section id="business-takeaway" class="level3">
+<h3 class="anchored" data-anchor-id="business-takeaway">5.5 Business Takeaway</h3>
+<p>The model relies most heavily on <code>age</code> and digital engagement (<code>app_logins_frequency</code>) rather than just financial metrics. To proactively prevent churn, retention strategies should be highly personalized by age group and focused on keeping users actively logging into the platform.</p>
 </section>
 </section>
 <section id="ui-design" class="level2">
 <h2 class="anchored" data-anchor-id="ui-design">6 UI Design</h2>
+<section id="tab-1-macro-view-strategic-oversight" class="level3">
+<h3 class="anchored" data-anchor-id="tab-1-macro-view-strategic-oversight">Tab 1: Macro View (Strategic Oversight)</h3>
+<p><img src="images/clipboard-3056273627.png" class="img-fluid"></p>
+<section id="description" class="level4">
+<h4 class="anchored" data-anchor-id="description">Description</h4>
+<p>The Macro View serves as a high-level command center for executives to optimize the financial trade-offs of the churn management strategy. It transitions the model from a technical output (probabilities) to a business output (dollars). By using a <strong>Churn Threshold Slider</strong>, users can simulate the impact of different risk tolerances on the company’s bottom line.</p>
+</section>
+<section id="data-visualization-design-principles" class="level4">
+<h4 class="anchored" data-anchor-id="data-visualization-design-principles"><strong>Data Visualization &amp; Design Principles</strong></h4>
+<ul>
+<li><p><strong>Visual Hierarchy:</strong> Key Performance Indicators (KPIs) like <strong>Total Cost</strong> and <strong>Total CLV Retained</strong> are placed at the top to provide immediate situational awareness.</p></li>
+<li><p><strong>The “Danger Zone” Histogram:</strong> This uses <strong>Distributional Analysis</strong> to show the density of risk. The vertical threshold line provides a clear visual cue of “Who we help” vs.&nbsp;“Who we ignore.”</p></li>
+<li><p><strong>The Dynamic Confusion Matrix:</strong> This implements <strong>Real-time Feedback Loops</strong>. As the user moves the slider, the matrix shifts to show the immediate trade-off between “Wasted Spend” (False Positives) and “Lost Revenue” (False Negatives).</p></li>
+<li><p><strong>The Dynamic Lift Chart:</strong> Focuses on <strong>Model Efficiency</strong>. It demonstrates the “Power” of the model by showing how much more effective the targeted intervention is compared to random guessing.</p></li>
+</ul>
+</section>
+</section>
+<section id="tab-2-micro-view-operational-simulation" class="level3">
+<h3 class="anchored" data-anchor-id="tab-2-micro-view-operational-simulation">Tab 2: Micro View (Operational Simulation)</h3>
+<p><img src="images/clipboard-1860893937.png" class="img-fluid"></p>
+<section id="description-1" class="level4">
+<h4 class="anchored" data-anchor-id="description-1"><strong>Description</strong></h4>
+<p>The Micro View shifts the focus from “The Many” to “The One.” It is a diagnostic and prescriptive tool designed for account managers to understand individual customer distress and test potential solutions. It bridges the “Black Box” of Machine Learning by providing transparent, local explanations for every prediction.</p>
+</section>
+<section id="data-visualization-design-principles-1" class="level4">
+<h4 class="anchored" data-anchor-id="data-visualization-design-principles-1"><strong>Data Visualization &amp; Design Principles</strong></h4>
+<ul>
+<li><p><strong>Contextual Filtering:</strong> The <strong>Search &amp; Selection</strong> interface allows users to drill down from a massive dataset to a single specific profile, maintaining <strong>Data Continuity</strong> across the workflow.</p></li>
+<li><p><strong>SHAP Waterfall Chart:</strong> follows the principle of <strong>Transparency</strong>. It deconstructs a complex Random Forest prediction into a simple “Tug-of-War” visual, showing which specific behaviors (like NPS or App Logins) are driving that individual’s risk.</p></li>
+<li><p><strong>Prescriptive “What-If” Simulation:</strong> This implements <strong>Active Learning</strong>. By providing “Actionable Levers” (sliders/toggles), the user can modify feature values (e.g., “What if we increase their credit limit?”) to see the <strong>Projected Risk</strong> update in real-time.</p></li>
+<li><p><strong>Best Practices:</strong> The design limits the view to the <strong>Top 10 Strategic Variables</strong>, reducing <strong>Cognitive Load</strong> and ensuring the agent focuses only on factors the business can actually influence.</p></li>
+</ul>
 
 
+</section>
+</section>
 </section>
 </section>
 

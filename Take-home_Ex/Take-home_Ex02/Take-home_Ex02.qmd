@@ -18,7 +18,7 @@ This project aims to develop a robust predictive model to identify customer chur
 
 ## 2 Install and Load Packages
 
-In this project, we utilize thirteen R packages to facilitate data import, manipulation, and advanced visualization:
+In this project, we utilize eighteen R packages to facilitate data import, manipulation, and advanced visualization:
 
 -   **`tidyverse`**: A collection of fundamental R packages designed for data science, covering everything from data cleaning to creating static statistical graphs.
 
@@ -46,8 +46,18 @@ In this project, we utilize thirteen R packages to facilitate data import, manip
 
 -   **`car`**: provides advanced statistical tests and diagnostic tools—such as the `vif()` function—to evaluate, troubleshoot, and refine regression models.
 
+-   **`rsample`**: provides the tools to split your data into training and testing sets, as well as create resampled data like cross-validation folds.
+
+-   **`tune`**: helps optimize your machine learning models by testing and finding the best possible hyperparameter values.
+
+-   **`parsnip`**: gives a single, standardized interface to build and fit various types of machine learning models
+
+-   **`workflows`**: simplifies your coding pipeline by bundling your data pre-processing steps and the `parsnip` model into one cohesive object that can be trained and tested together.
+
+-   **`yardstick`**: provides a consistent, tidy interface for calculating model performance metrics
+
 ```{r}
-pacman::p_load(tidyverse, naniar, skimr, knitr, dplyr,kableExtra, patchwork, corrplot, tidymodels,ranger, xgboost,vip,car)
+pacman::p_load(tidyverse, naniar, skimr, knitr, dplyr,kableExtra, patchwork, corrplot, tidymodels,ranger, xgboost,vip,car, rsample, tune, parsnip, workflows, yardstick)
 ```
 
 ## 3 Data Preparation
@@ -75,10 +85,23 @@ transactions_data <- read_csv("data/transactions_data.csv")
 
 #### 3.3.1 Check Missing Values
 
-```{r}
+I use `gg_miss_var(customer_data)` to get an instant, clear picture of **which columns in the dataset are missing the most information**. Instead of scrolling through a massive table of `NA` counts, this function (from the `naniar` package) generates a simple bar chart.
+
+::: panel-tabset
+## Plot
+
+```{r, echo=FALSE}
 # Visualize missingness in customer data
 gg_miss_var(customer_data)
 ```
+
+## Code
+
+```{r, eval=FALSE}
+# Visualize missingness in customer data
+gg_miss_var(customer_data)
+```
+:::
 
 In the customer dataset ($N = 48,723$), missing values are limited to `complaint_topics` (49.97%), `credit_utilization_ratio` (37.48%), and `feature_requests` (33.07%). These gaps are structural, occurring when a product or interaction is not applicable to the customer. Categorical missing values were imputed as 'None' or 'No Interaction'. For `credit_utilization_ratio`, NAs were filled with 0.
 
@@ -152,6 +175,14 @@ gg_miss_var(customer_data_final)
 Every customer has a Recency, Frequency, and Monetary value.
 
 ##### 3.3.2.3 Statistical Summary of Data
+
+I use `skim()` because standard functions like `summary()` or `str()` become an unreadable wall of text when we have 57 variables.
+
+Here is exactly why it is the most efficient choice for a wide dataset:
+
+-   **Instant Organization:** It automatically groups the 57 variables by data type (numeric, character, factor, etc.) into clean, separate tables, making the output much easier to navigate.
+
+-   **Inline Distributions:** For numeric data, it generates tiny inline histograms (sparklines) directly in the console. This lets us spot skewed distributions, outliers, or weird patterns at a glance without having to plot dozens of individual charts.
 
 ```{r}
 customer_data_final %>% 
@@ -278,6 +309,8 @@ modeling_data <- modeling_data %>%
 
 #### 4.2.1 Distribution of Target Variable
 
+Combining a histogram with a density curve provides the most comprehensive view of the overall distribution for the `churn_probability`. The histogram reveals the granular details and exact data bins, highlighting specific spikes or gaps in the actual risk scores. Meanwhile, the overlaid density curve smooths out this noise, allowing us to instantly identify the overarching shape and trends of the customer baseline risk.
+
 ::: panel-tabset
 ## Plot
 
@@ -334,6 +367,8 @@ modeling_data <- modeling_data %>%
 ```
 
 #### 4.2.2 Distribution of Numerical Variables
+
+I used faceted boxplots to efficiently visualize the distribution and spread of all the numerical variables simultaneously, regardless of their differing scales. This visual approach allows us to instantly identify data anomalies, as it automatically isolates and flags potential outliers falling beyond 1.5 times the Interquartile Range (IQR) in red.
 
 ::: panel-tabset
 ## Plot
@@ -402,6 +437,8 @@ modeling_data <- modeling_data %>%
 
 ### 4.3 Correlation Matrix
 
+I use `corrplot` to instantly visualize the strength and direction of relationships between all the numeric variables, making it easy to spot potential multicollinearity before modeling. By using hierarchical clustering (`order = "hclust"`), the plot automatically groups highly correlated variables together so patterns stand out naturally. Furthermore, overlaying the exact numbers (`addCoef.col`) gives us the precise correlation coefficients alongside the color-coded heatmap, providing both a big-picture summary and granular detail in a single chart.
+
 ::: panel-tabset
 ## Plot
 
@@ -467,10 +504,21 @@ modeling_data_final <- modeling_data %>%
   )
 ```
 
-```{r}
+```{r, eval=FALSE}
 # List final column names 
 colnames(modeling_data_final)
 ```
+
+<details>
+
+<summary>Click to reveal final column names</summary>
+
+```{r, echo=FALSE}
+# List final column names 
+colnames(modeling_data_final)
+```
+
+</details>
 
 ### 4.4 Stratified Random Sampling
 
@@ -497,20 +545,44 @@ nrow(test_data)
 
 ### 4.5 Variance Inflation Factor (VIF)
 
-```{r}
+```{r,eval=FALSE}
 my_model <- lm(churn_probability ~ ., data = train_data)
 
 # This will show you the exact variables that are perfectly correlated
 alias(my_model)
 ```
 
-```{r}
+<details>
+
+<summary>Click to reveal *Perfect* Multicollinearity</summary>
+
+```{r, echo=FALSE}
+my_model <- lm(churn_probability ~ ., data = train_data)
+alias(my_model)
+```
+
+</details>
+
+```{r, eval=FALSE}
+# Fits the model without the redundant average column
+my_model_fixed <- lm(churn_probability ~ . - product_satisfaction, data = train_data)
+# Calculate VIF
+vif(my_model_fixed)
+```
+
+<details>
+
+<summary>Click to reveal *VIF* result</summary>
+
+```{r, echo=FALSE}
 # Fits the model without the redundant average column
 my_model_fixed <- lm(churn_probability ~ . - product_satisfaction, data = train_data)
 # Calculate VIF
 vif(my_model_fixed)
 
 ```
+
+</details>
 
 ```{r}
 # Remove the variables from the training data
@@ -549,85 +621,323 @@ churn_recipe <- recipe(churn_probability ~ ., data = train_data) %>%
   step_normalize(all_numeric_predictors())
 ```
 
-### 5.2 Define and Fit the Models
+### 5.2 Tune and Fit the Models
 
-#### 5.2.1 Define Random Forest
+#### 5.2.1 The Tuning Phase
+
+##### 5.2.1.1 Set Up Cross-Validation Folds
+
+Instead of training on the entire dataset at once, cross-validation splits training data into multiple "folds." The model trains on a subset and evaluates on the holdout fold, repeating this process to ensure it generalizes well to unseen data.
 
 ```{r}
-# Define Random Forest
-rf_spec <- rand_forest(trees = 500) %>%
-  set_engine("ranger", importance = "impurity") %>%
-  set_mode("regression")
-
-# Fit the model
-rf_fit <- workflow() %>%
-  add_recipe(churn_recipe) %>%
-  add_model(rf_spec) %>%
-  fit(data = train_data)
-
+# Create 5 folds for cross-validation 
+set.seed(123) # For reproducibility
+churn_folds <- vfold_cv(train_data, v = 5)
 ```
 
-#### 5.2.2 Define XGBoost
+##### 5.2.1.2 Tag Hyperparameters for Tuning
+
+-   **For Random Forest:** We typically tune `mtry` (number of predictors sampled at each split) and `min_n` (minimum data points in a node).
+
+-   **For XGBoost:** We typically tune `trees`, `learn_rate`, and `tree_depth`.
 
 ```{r}
-xgb_spec <- boost_tree(trees = 1000, learn_rate = 0.01) %>%
-  set_engine("xgboost") %>%
+# Tunable Random Forest Spec
+rf_tune_spec <- rand_forest(
+  trees = 500, 
+  mtry = tune(), 
+  min_n = tune()
+) %>%  
+  set_engine("ranger", importance = "impurity") %>%  
   set_mode("regression")
 
-# Fit the model
-xgb_fit <- workflow() %>%
-  add_recipe(churn_recipe) %>%
-  add_model(xgb_spec) %>%
-  fit(data = train_data)
-
+# Tunable XGBoost Spec
+xgb_tune_spec <- boost_tree(
+  trees = tune(), 
+  learn_rate = tune(), 
+  tree_depth = tune()
+) %>%  
+  set_engine("xgboost") %>%  
+  set_mode("regression")
 ```
 
-#### 5.2.3 Performance Comparison
+##### 5.2.1.3 Build the Tuning Workflows
+
+Attach recipe and the new tunable specifications to workflows.
 
 ```{r}
-# Compare results
-results <- bind_rows(
-  predict(rf_fit, test_data) %>% bind_cols(test_data) %>% mutate(model = "Random Forest"),
-  predict(xgb_fit, test_data) %>% bind_cols(test_data) %>% mutate(model = "XGBoost")
+rf_tune_wf <- workflow() %>%  
+  add_recipe(churn_recipe) %>%  
+  add_model(rf_tune_spec)
+
+xgb_tune_wf <- workflow() %>%  
+  add_recipe(churn_recipe) %>%  
+  add_model(xgb_tune_spec)
+```
+
+##### 5.2.1.4 Run the Grid Search
+
+In this step, we perform hyperparameter tuning for both the Random Forest and XGBoost models. Using the 5 cross-validation folds created earlier, we test a grid of 5 distinct parameter combinations to identify the optimal settings that yield the lowest error rate.
+
+**Note on Computation:** Because grid search and cross-validation require training dozens of individual models, this process is highly computationally expensive. To prevent the Quarto document from taking an extensive amount of time to render, the code chunk below is set to `eval=FALSE`. The tuning was executed once locally, and the final result objects were saved as `.rds` (R Data) files. We will simply load these pre-computed results in the next step.
+
+```{r, eval=FALSE}
+# Tune Random Forest
+set.seed(456)
+rf_tune_results <- tune_grid(
+  rf_tune_wf,
+  resamples = churn_folds,
+  grid = 5 # Tests 5 different combinations
 )
 
-# Calculate RMSE and R-Squared
-results %>%
-  group_by(model) %>%
-  metrics(truth = churn_probability, estimate = .pred)
-```
+# Tune XGBoost
+set.seed(789)
+xgb_tune_results <- tune_grid(
+  xgb_tune_wf,
+  resamples = churn_folds,
+  grid = 5
+)
 
-#### 5.2.4 Performance Visualisation
+saveRDS(rf_tune_results, "rf_tune_results.rds")
+saveRDS(xgb_tune_results, "xgb_tune_results.rds")
+```
 
 ```{r}
-# 1. Performance Visualization: Predicted vs. Actual
-p_perf <- ggplot(results, aes(x = churn_probability, y = .pred, color = model)) +
-  geom_point(alpha = 0.3) +
-  geom_abline(lty = 2, color = "black") + # The 'perfect prediction' line
-  facet_wrap(~model) +
-  theme_minimal() +
-  labs(title = "Model Competition: Predicted vs. Actual Churn Probability",
-       subtitle = "Proximity to the dashed line indicates higher predictive accuracy",
-       x = "Actual Probability", y = "Predicted Probability")
-
-# 2. Variable Importance Visualization
-# Random Forest VIP
-vip_rf <- rf_fit %>% 
-  extract_fit_parsnip() %>% 
-  vip(num_features = 10) + 
-  labs(title = "Random Forest: Top 10 Drivers")
-
-# XGBoost VIP
-vip_xgb <- xgb_fit %>% 
-  extract_fit_parsnip() %>% 
-  vip(num_features = 10) + 
-  labs(title = "XGBoost: Top 10 Drivers")
-
-# Display the performance plot
-p_perf
-
-# Combine and display VIP plots side-by-side
-vip_rf + vip_xgb
+# Just load the finished results instantly:
+rf_tune_results <- readRDS("rf_tune_results.rds")
+xgb_tune_results <- readRDS("xgb_tune_results.rds")
 ```
 
+#### 5.2.2 The Finalizing and Fitting phase
+
+Once the tuning finishes, we can extract the best performing hyperparameter combination (e.g., the one with the lowest Root Mean Squared Error, or RMSE) and finalize the workflow.
+
+```{r}
+# Get the best parameters based on lowest RMSE
+best_rf_params <- select_best(rf_tune_results, metric = "rmse")
+best_xgb_params <- select_best(xgb_tune_results, metric = "rmse")
+
+# Plug those best parameters back into the workflows
+final_rf_wf <- finalize_workflow(rf_tune_wf, best_rf_params)
+final_xgb_wf <- finalize_workflow(xgb_tune_wf, best_xgb_params)
+
+# Now you can fit these finalized models to full training data!
+final_rf_fit <- fit(final_rf_wf, data = train_data)
+final_xgb_fit <- fit(final_xgb_wf, data = train_data)
+```
+
+### 5.3 Model Performance and Comparison
+
+::: panel-tabset
+## Plot
+
+```{r,echo=FALSE}
+# 1. Generate predictions on the test dataset
+# augment() automatically attaches the predictions (.pred) to test data
+rf_test_preds <- augment(final_rf_fit, new_data = test_data)
+xgb_test_preds <- augment(final_xgb_fit, new_data = test_data)
+
+# 2. Define the metrics we want to calculate
+churn_metrics <- metric_set(rmse, rsq, mae)
+
+# 3. Calculate the metrics for Random Forest
+rf_results <- churn_metrics(rf_test_preds, truth = churn_probability, estimate = .pred) %>%
+  mutate(model = "Random Forest")
+
+# 4. Calculate the metrics for XGBoost
+xgb_results <- churn_metrics(xgb_test_preds, truth = churn_probability, estimate = .pred) %>%
+  mutate(model = "XGBoost")
+
+# 5. Combine the results into one clean comparison table
+model_comparison <- bind_rows(rf_results, xgb_results) %>%
+  select(model, .metric, .estimate) %>%
+  arrange(.metric, .estimate)
+
+# Create a faceted bar chart
+ggplot(model_comparison, aes(x = model, y = .estimate, fill = model)) +
+  geom_col(width = 0.6, show.legend = FALSE) +
+  # Add labels on top of bars for clarity
+  geom_text(aes(label = round(.estimate, 4)), vjust = -0.5, size = 3.5) +
+  # Split by metric and give each its own Y-axis scale
+  facet_wrap(~ .metric, scales = "free_y", 
+             labeller = labeller(.metric = c(
+               mae = "MAE", 
+               rmse = "RMSE", 
+               rsq = "R-Squared"
+             ))) +
+  # Clean up the look
+  scale_fill_manual(values = c("Random Forest" = "#2c3e50", "XGBoost" = "#e74c3c")) +
+  labs(
+    title = "Performance Comparison: Random Forest vs. XGBoost",
+    x = NULL,
+    y = "Metric Value"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold", size = 11),
+    plot.title = element_text(face = "bold")
+  )
+
+```
+
+## Code
+
+```{r,eval=FALSE}
+# 1. Generate predictions on the test dataset
+# augment() automatically attaches the predictions (.pred) to test data
+rf_test_preds <- augment(final_rf_fit, new_data = test_data)
+xgb_test_preds <- augment(final_xgb_fit, new_data = test_data)
+
+# 2. Define the metrics we want to calculate
+churn_metrics <- metric_set(rmse, rsq, mae)
+
+# 3. Calculate the metrics for Random Forest
+rf_results <- churn_metrics(rf_test_preds, truth = churn_probability, estimate = .pred) %>%
+  mutate(model = "Random Forest")
+
+# 4. Calculate the metrics for XGBoost
+xgb_results <- churn_metrics(xgb_test_preds, truth = churn_probability, estimate = .pred) %>%
+  mutate(model = "XGBoost")
+
+# 5. Combine the results into one clean comparison table
+model_comparison <- bind_rows(rf_results, xgb_results) %>%
+  select(model, .metric, .estimate) %>%
+  arrange(.metric, .estimate)
+
+# Create a faceted bar chart
+ggplot(model_comparison, aes(x = model, y = .estimate, fill = model)) +
+  geom_col(width = 0.6, show.legend = FALSE) +
+  # Add labels on top of bars for clarity
+  geom_text(aes(label = round(.estimate, 4)), vjust = -0.5, size = 3.5) +
+  # Split by metric and give each its own Y-axis scale
+  facet_wrap(~ .metric, scales = "free_y", 
+             labeller = labeller(.metric = c(
+               mae = "MAE", 
+               rmse = "RMSE", 
+               rsq = "R-Squared"
+             ))) +
+  # Clean up the look
+  scale_fill_manual(values = c("Random Forest" = "#2c3e50", "XGBoost" = "#e74c3c")) +
+  labs(
+    title = "Performance Comparison: Random Forest vs. XGBoost",
+    x = NULL,
+    y = "Metric Value"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold", size = 11),
+    plot.title = element_text(face = "bold")
+  )
+
+```
+:::
+
+Overall, the **Random Forest** model marginally outperformed the XGBoost model across all evaluated metrics, making it the preferred model for this analysis.
+
+### 5.4 Variable Importance (Random Forest)
+
+To understand what drives the model's predictions, we extract the variable importance scores from the finalized Random Forest model. These scores indicate how much each feature contributes to reducing the prediction error (measured by node impurity).
+
+::: panel-tabset
+## Plot
+
+```{r, echo=FALSE}
+# Extract the fitted model from the workflow and generate the plot
+final_rf_fit %>%
+  extract_fit_parsnip() %>%
+  vip(
+    num_features = 10, # Shows the top 15 most important variables
+    geom = "col", 
+    aesthetics = list(fill = "#2c3e50") # Matches the color scheme from the previous plot
+  ) +
+  labs(
+    title = "Top 10 Most Important Variables: Random Forest",
+    x = "Importance Score",
+    y = "Predictor Variable"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.y = element_text(size = 11) # Makes variable names easier to read
+  )
+```
+
+## Code
+
+```{r, eval=FALSE}
+# Extract the fitted model from the workflow and generate the plot
+final_rf_fit %>%
+  extract_fit_parsnip() %>%
+  vip(
+    num_features = 10, # Shows the top 15 most important variables
+    geom = "col", 
+    aesthetics = list(fill = "#2c3e50") # Matches the color scheme from the previous plot
+  ) +
+  labs(
+    title = "Top 10 Most Important Variables: Random Forest",
+    x = "Importance Score",
+    y = "Predictor Variable"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.y = element_text(size = 11) # Makes variable names easier to read
+  )
+```
+:::
+
+::: callout-note
+## Interpreting the Key Drivers of Churn
+
+We can group these primary drivers into four distinct business categories:
+
+-   **Demographics (`age`, `household_size`):** Interestingly, `age` is the single most dominant predictor of churn in this dataset. This indicates that a customer's life stage or generational cohort heavily dictates their likelihood of leaving the service. `household_size` also appears in the top 10, suggesting that family dynamics influence retention.
+
+-   **Digital & Transactional Engagement (`app_logins_frequency`, `weekend_transaction_ratio`, `recency`, `frequency`):** How customers interact with the platform is a massive signal. The frequency of app logins and the recency of their last action are classic indicators of engagement. Furthermore, behavioral patterns, such as the proportion of transactions happening on weekends, provide strong signals to the model about a user's routine and potential drop-off.
+
+-   **Customer Sentiment & Loyalty (`nps_score`, `customer_lifetime_value`, `tenure`):** Direct customer feedback (`nps_score`) is the third most important variable, confirming that stated satisfaction strongly correlates with actual churn behavior. Additionally, historical loyalty metrics (`tenure` and `customer_lifetime_value`) are heavily weighed by the model to assess risk.
+
+-   **Financial Indicators (`credit_utilization_ratio`):** A customer's financial footprint, specifically how much of their available credit they are utilizing, acts as a key variable. High or low utilization could be indicative of financial stress or shifting to a competitor's product.
+:::
+
+### 5.5 Business Takeaway
+
+The model relies most heavily on `age` and digital engagement (`app_logins_frequency`) rather than just financial metrics. To proactively prevent churn, retention strategies should be highly personalized by age group and focused on keeping users actively logging into the platform.
+
 ## 6 UI Design
+
+### Tab 1: Macro View (Strategic Oversight)
+
+![](images/clipboard-3056273627.png)
+
+#### Description
+
+The Macro View serves as a high-level command center for executives to optimize the financial trade-offs of the churn management strategy. It transitions the model from a technical output (probabilities) to a business output (dollars). By using a **Churn Threshold Slider**, users can simulate the impact of different risk tolerances on the company’s bottom line.
+
+#### **Data Visualization & Design Principles**
+
+-   **Visual Hierarchy:** Key Performance Indicators (KPIs) like **Total Cost** and **Total CLV Retained** are placed at the top to provide immediate situational awareness.
+
+-   **The "Danger Zone" Histogram:** This uses **Distributional Analysis** to show the density of risk. The vertical threshold line provides a clear visual cue of "Who we help" vs. "Who we ignore."
+
+-   **The Dynamic Confusion Matrix:** This implements **Real-time Feedback Loops**. As the user moves the slider, the matrix shifts to show the immediate trade-off between "Wasted Spend" (False Positives) and "Lost Revenue" (False Negatives).
+
+-   **The Dynamic Lift Chart:** Focuses on **Model Efficiency**. It demonstrates the "Power" of the model by showing how much more effective the targeted intervention is compared to random guessing.
+
+### Tab 2: Micro View (Operational Simulation)
+
+![](images/clipboard-1860893937.png)
+
+#### **Description**
+
+The Micro View shifts the focus from "The Many" to "The One." It is a diagnostic and prescriptive tool designed for account managers to understand individual customer distress and test potential solutions. It bridges the "Black Box" of Machine Learning by providing transparent, local explanations for every prediction.
+
+#### **Data Visualization & Design Principles**
+
+-   **Contextual Filtering:** The **Search & Selection** interface allows users to drill down from a massive dataset to a single specific profile, maintaining **Data Continuity** across the workflow.
+
+-   **SHAP Waterfall Chart:** follows the principle of **Transparency**. It deconstructs a complex Random Forest prediction into a simple "Tug-of-War" visual, showing which specific behaviors (like NPS or App Logins) are driving that individual's risk.
+
+-   **Prescriptive "What-If" Simulation:** This implements **Active Learning**. By providing "Actionable Levers" (sliders/toggles), the user can modify feature values (e.g., "What if we increase their credit limit?") to see the **Projected Risk** update in real-time.
+
+-   **Best Practices:** The design limits the view to the **Top 10 Strategic Variables**, reducing **Cognitive Load** and ensuring the agent focuses only on factors the business can actually influence.
