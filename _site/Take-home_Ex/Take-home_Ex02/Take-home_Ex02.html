@@ -305,11 +305,13 @@ window.Quarto = {
   </ul></li>
   <li><a href="#building-predictive-models" id="toc-building-predictive-models" class="nav-link" data-scroll-target="#building-predictive-models">5 Building Predictive Models</a>
   <ul class="collapse">
-  <li><a href="#create-the-preprocessing-recipe" id="toc-create-the-preprocessing-recipe" class="nav-link" data-scroll-target="#create-the-preprocessing-recipe">5.1 Create the Preprocessing Recipe</a></li>
-  <li><a href="#tune-and-fit-the-models" id="toc-tune-and-fit-the-models" class="nav-link" data-scroll-target="#tune-and-fit-the-models">5.2 Tune and Fit the Models</a></li>
-  <li><a href="#model-performance-and-comparison" id="toc-model-performance-and-comparison" class="nav-link" data-scroll-target="#model-performance-and-comparison">5.3 Model Performance and Comparison</a></li>
-  <li><a href="#variable-importance-random-forest" id="toc-variable-importance-random-forest" class="nav-link" data-scroll-target="#variable-importance-random-forest">5.4 Variable Importance (Random Forest)</a></li>
-  <li><a href="#business-takeaway" id="toc-business-takeaway" class="nav-link" data-scroll-target="#business-takeaway">5.5 Business Takeaway</a></li>
+  <li><a href="#justification-for-model-development" id="toc-justification-for-model-development" class="nav-link" data-scroll-target="#justification-for-model-development">5.1 Justification for Model Development</a></li>
+  <li><a href="#selection-of-algorithms-random-forest-and-xgboost" id="toc-selection-of-algorithms-random-forest-and-xgboost" class="nav-link" data-scroll-target="#selection-of-algorithms-random-forest-and-xgboost">5.2 Selection of Algorithms: Random Forest and XGBoost</a></li>
+  <li><a href="#create-the-preprocessing-recipe" id="toc-create-the-preprocessing-recipe" class="nav-link" data-scroll-target="#create-the-preprocessing-recipe">5.3 Create the Preprocessing Recipe</a></li>
+  <li><a href="#tune-and-fit-the-models" id="toc-tune-and-fit-the-models" class="nav-link" data-scroll-target="#tune-and-fit-the-models">5.4 Tune and Fit the Models</a></li>
+  <li><a href="#model-performance-and-comparison" id="toc-model-performance-and-comparison" class="nav-link" data-scroll-target="#model-performance-and-comparison">5.5 Model Performance and Comparison</a></li>
+  <li><a href="#variable-importance-random-forest" id="toc-variable-importance-random-forest" class="nav-link" data-scroll-target="#variable-importance-random-forest">5.6 Variable Importance (Random Forest)</a></li>
+  <li><a href="#business-takeaway" id="toc-business-takeaway" class="nav-link" data-scroll-target="#business-takeaway">5.7 Business Takeaway</a></li>
   </ul></li>
   <li><a href="#ui-design" id="toc-ui-design" class="nav-link" data-scroll-target="#ui-design">6 UI Design</a>
   <ul class="collapse">
@@ -349,7 +351,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 14, 2026</p>
+      <p class="date-modified">March 15, 2026</p>
     </div>
   </div>
     
@@ -364,7 +366,7 @@ window.Quarto = {
 <h1>Predictive Modelling</h1>
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">1 Overview</h2>
-<p>This project aims to develop a robust predictive model to identify customer churn within a Colombian fintech environment. Using the <strong>COFINFAD</strong> dataset, which tracks the behavior of 48,723 customers over the 2023 calendar year, the analysis bridges the gap between customer sentiment and actual transactional behavior. By converting over 3.1 million raw transaction logs into actionable behavioral metrics, the project provides a data-driven strategy for proactive customer retention.</p>
+<p>This project focuses on the development of a robust predictive framework designed to identify and mitigate customer attrition within the Colombian fintech ecosystem. Leveraging the <strong>COFINFAD dataset</strong>—a comprehensive longitudinal record of 48,723 customers over the 2023 fiscal year—the analysis integrates qualitative customer sentiment with quantitative transactional behavior. By synthesizing over 3.1 million raw transaction logs into high-fidelity behavioral metrics, the project establishes a prescriptive, data-driven strategy to optimize proactive customer retention and preserve long-term institutional value.</p>
 </section>
 <section id="install-and-load-packages" class="level2">
 <h2 class="anchored" data-anchor-id="install-and-load-packages">2 Install and Load Packages</h2>
@@ -1924,9 +1926,29 @@ tenure                     1.141237  1        1.068287</code></pre>
 </section>
 <section id="building-predictive-models" class="level2">
 <h2 class="anchored" data-anchor-id="building-predictive-models">5 Building Predictive Models</h2>
-<p>For the predictive modeling phase, <strong>Random Forest</strong> and <strong>XGBoost</strong> were selected due to their superior ability to handle the non-linear relationships and complex feature interactions inherent in banking behavioral data. Random Forest provides a robust, ensemble-based baseline that reduces variance by averaging multiple decision trees, making it highly resistant to overfitting. In contrast, XGBoost (Extreme Gradient Boosting) was chosen for its iterative optimization process, which minimizes residual errors and typically yields higher precision in identifying subtle churn signals. Both models are natively capable of handling the mixed data types in this study—ranging from categorical sentiment scores to capped financial metrics—without requiring the strict linearity assumptions of traditional regression models.</p>
+<section id="justification-for-model-development" class="level3">
+<h3 class="anchored" data-anchor-id="justification-for-model-development">5.1 Justification for Model Development</h3>
+<p>While the COFINFAD dataset includes a pre-calculated churn probability, this project develops a <strong>de novo predictive engine</strong> using ensemble learning for three strategic reasons:</p>
+<ul>
+<li><strong>Transition from Static to Dynamic Analysis:</strong> The original probability column is a static historical record that cannot respond to changes in input data. A custom model is required to power the <strong>interactive simulation environment</strong> in the dashboard, enabling real-time “What-If” adjustments to customer features to observe how risk scores fluctuate.</li>
+</ul>
+<!-- -->
+<ul>
+<li><p><strong>Model Interpretability:</strong> To move beyond the “Black Box” nature of the existing data, the framework requires an underlying model object to calculate feature contributions. This allows for the generation of diagnostic visuals that explain the specific drivers behind a customer’s risk—a functionality unattainable with a standalone column of static values.</p></li>
+<li><p><strong>Algorithmic Validation (Benchmarking):</strong> In the absence of binary churn outcomes, the provided probability serves as a <strong>Proxy Ground Truth</strong>. By training optimized models on raw transactional logs, this study seeks to benchmark the ability of ensemble methods to reconstruct these risk scores. A low <strong>Root Mean Square Error (RMSE)</strong> on hold-out data validates that the custom engine has successfully captured the fintech’s internal risk logic, ensuring the dashboard’s simulations are mathematically reliable.</p></li>
+</ul>
+</section>
+<section id="selection-of-algorithms-random-forest-and-xgboost" class="level3">
+<h3 class="anchored" data-anchor-id="selection-of-algorithms-random-forest-and-xgboost">5.2 Selection of Algorithms: Random Forest and XGBoost</h3>
+<p>For the predictive modeling phase, <strong>Random Forest</strong> and <strong>XGBoost</strong> were selected due to their superior ability to handle the non-linear relationships and complex feature interactions inherent in financial behavioral data.</p>
+<ul>
+<li><p><strong>Random Forest</strong> provides a robust, ensemble-based baseline that reduces variance by averaging multiple decision trees, making it highly resistant to overfitting and stable across diverse customer segments.</p></li>
+<li><p><strong>XGBoost (Extreme Gradient Boosting)</strong> was selected for its iterative optimization process, which minimizes residual errors and typically yields higher precision in identifying subtle, high-risk churn signals that simpler models might overlook.</p></li>
+</ul>
+<p>Both models are natively capable of handling the mixed data types present in the COFINFAD dataset—ranging from categorical sentiment scores to continuous financial metrics—without requiring the strict linearity assumptions of traditional regression models.</p>
+</section>
 <section id="create-the-preprocessing-recipe" class="level3">
-<h3 class="anchored" data-anchor-id="create-the-preprocessing-recipe">5.1 Create the Preprocessing Recipe</h3>
+<h3 class="anchored" data-anchor-id="create-the-preprocessing-recipe">5.3 Create the Preprocessing Recipe</h3>
 <p>This recipe will automatically clean the data for both models. Since we have categorical variables like <code>gender</code> and <code>occupation</code>, we must convert them into a numeric format (Dummy Encoding).</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Building the recipe</span></span>
@@ -1942,11 +1964,11 @@ tenure                     1.141237  1        1.068287</code></pre>
 </div>
 </section>
 <section id="tune-and-fit-the-models" class="level3">
-<h3 class="anchored" data-anchor-id="tune-and-fit-the-models">5.2 Tune and Fit the Models</h3>
+<h3 class="anchored" data-anchor-id="tune-and-fit-the-models">5.4 Tune and Fit the Models</h3>
 <section id="the-tuning-phase" class="level4">
-<h4 class="anchored" data-anchor-id="the-tuning-phase">5.2.1 The Tuning Phase</h4>
+<h4 class="anchored" data-anchor-id="the-tuning-phase">5.4.1 The Tuning Phase</h4>
 <section id="set-up-cross-validation-folds" class="level5">
-<h5 class="anchored" data-anchor-id="set-up-cross-validation-folds">5.2.1.1 Set Up Cross-Validation Folds</h5>
+<h5 class="anchored" data-anchor-id="set-up-cross-validation-folds">5.4.1.1 Set Up Cross-Validation Folds</h5>
 <p>Instead of training on the entire dataset at once, cross-validation splits training data into multiple “folds.” The model trains on a subset and evaluates on the holdout fold, repeating this process to ensure it generalizes well to unseen data.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create 5 folds for cross-validation </span></span>
@@ -1955,7 +1977,7 @@ tenure                     1.141237  1        1.068287</code></pre>
 </div>
 </section>
 <section id="tag-hyperparameters-for-tuning" class="level5">
-<h5 class="anchored" data-anchor-id="tag-hyperparameters-for-tuning">5.2.1.2 Tag Hyperparameters for Tuning</h5>
+<h5 class="anchored" data-anchor-id="tag-hyperparameters-for-tuning">5.4.1.2 Tag Hyperparameters for Tuning</h5>
 <ul>
 <li><p><strong>For Random Forest:</strong> We typically tune <code>mtry</code> (number of predictors sampled at each split) and <code>min_n</code> (minimum data points in a node).</p></li>
 <li><p><strong>For XGBoost:</strong> We typically tune <code>trees</code>, <code>learn_rate</code>, and <code>tree_depth</code>.</p></li>
@@ -1981,7 +2003,7 @@ tenure                     1.141237  1        1.068287</code></pre>
 </div>
 </section>
 <section id="build-the-tuning-workflows" class="level5">
-<h5 class="anchored" data-anchor-id="build-the-tuning-workflows">5.2.1.3 Build the Tuning Workflows</h5>
+<h5 class="anchored" data-anchor-id="build-the-tuning-workflows">5.4.1.3 Build the Tuning Workflows</h5>
 <p>Attach recipe and the new tunable specifications to workflows.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>rf_tune_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span>  </span>
@@ -1994,7 +2016,7 @@ tenure                     1.141237  1        1.068287</code></pre>
 </div>
 </section>
 <section id="run-the-grid-search" class="level5">
-<h5 class="anchored" data-anchor-id="run-the-grid-search">5.2.1.4 Run the Grid Search</h5>
+<h5 class="anchored" data-anchor-id="run-the-grid-search">5.4.1.4 Run the Grid Search</h5>
 <p>In this step, we perform hyperparameter tuning for both the Random Forest and XGBoost models. Using the 5 cross-validation folds created earlier, we test a grid of 5 distinct parameter combinations to identify the optimal settings that yield the lowest error rate.</p>
 <p><strong>Note on Computation:</strong> Because grid search and cross-validation require training dozens of individual models, this process is highly computationally expensive. To prevent the Quarto document from taking an extensive amount of time to render, the code chunk below is set to <code>eval=FALSE</code>. The tuning was executed once locally, and the final result objects were saved as <code>.rds</code> (R Data) files. We will simply load these pre-computed results in the next step.</p>
 <div class="cell">
@@ -2025,7 +2047,7 @@ tenure                     1.141237  1        1.068287</code></pre>
 </section>
 </section>
 <section id="the-finalizing-and-fitting-phase" class="level4">
-<h4 class="anchored" data-anchor-id="the-finalizing-and-fitting-phase">5.2.2 The Finalizing and Fitting phase</h4>
+<h4 class="anchored" data-anchor-id="the-finalizing-and-fitting-phase">5.4.2 The Finalizing and Fitting phase</h4>
 <p>Once the tuning finishes, we can extract the best performing hyperparameter combination (e.g., the one with the lowest Root Mean Squared Error, or RMSE) and finalize the workflow.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the best parameters based on lowest RMSE</span></span>
@@ -2043,7 +2065,7 @@ tenure                     1.141237  1        1.068287</code></pre>
 </section>
 </section>
 <section id="model-performance-and-comparison" class="level3">
-<h3 class="anchored" data-anchor-id="model-performance-and-comparison">5.3 Model Performance and Comparison</h3>
+<h3 class="anchored" data-anchor-id="model-performance-and-comparison">5.5 Model Performance and Comparison</h3>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false" href="">Code</a></li></ul>
 <div class="tab-content">
@@ -2083,36 +2105,42 @@ tenure                     1.141237  1        1.068287</code></pre>
 <span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a faceted bar chart</span></span>
 <span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(model_comparison, <span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> .estimate, <span class="at">fill =</span> model)) <span class="sc">+</span></span>
-<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.6</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add labels on top of bars for clarity</span></span>
-<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(.estimate, <span class="dv">4</span>)), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
-<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Split by metric and give each its own Y-axis scale</span></span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.5</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co"># Narrower bars for a cleaner look</span></span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add labels on top of bars</span></span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(.estimate, <span class="dv">4</span>)), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.7</span>, <span class="at">size =</span> <span class="fl">3.2</span>, <span class="at">color =</span> <span class="st">"gray20"</span>) <span class="sc">+</span></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Split by metric</span></span>
 <span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> .metric, <span class="at">scales =</span> <span class="st">"free_y"</span>, </span>
 <span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>             <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">.metric =</span> <span class="fu">c</span>(</span>
 <span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>               <span class="at">mae =</span> <span class="st">"MAE"</span>, </span>
 <span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>               <span class="at">rmse =</span> <span class="st">"RMSE"</span>, </span>
 <span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>               <span class="at">rsq =</span> <span class="st">"R-Squared"</span></span>
 <span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a>             ))) <span class="sc">+</span></span>
-<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Clean up the look</span></span>
-<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Random Forest"</span> <span class="ot">=</span> <span class="st">"#2c3e50"</span>, <span class="st">"XGBoost"</span> <span class="ot">=</span> <span class="st">"#e74c3c"</span>)) <span class="sc">+</span></span>
-<span id="cb40-36"><a href="#cb40-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb40-37"><a href="#cb40-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Performance Comparison: Random Forest vs. XGBoost"</span>,</span>
-<span id="cb40-38"><a href="#cb40-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
-<span id="cb40-39"><a href="#cb40-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Metric Value"</span></span>
-<span id="cb40-40"><a href="#cb40-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb40-41"><a href="#cb40-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb40-42"><a href="#cb40-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb40-43"><a href="#cb40-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">11</span>),</span>
-<span id="cb40-44"><a href="#cb40-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>)</span>
-<span id="cb40-45"><a href="#cb40-45" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Updated Neutral Color Palette</span></span>
+<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Random Forest"</span> <span class="ot">=</span> <span class="st">"#4A5568"</span>, <span class="st">"XGBoost"</span> <span class="ot">=</span> <span class="st">"#A0AEC0"</span>)) <span class="sc">+</span></span>
+<span id="cb40-36"><a href="#cb40-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Visual refinements</span></span>
+<span id="cb40-37"><a href="#cb40-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb40-38"><a href="#cb40-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Model Performance"</span>,</span>
+<span id="cb40-39"><a href="#cb40-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb40-40"><a href="#cb40-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Metric Value"</span></span>
+<span id="cb40-41"><a href="#cb40-41" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb40-42"><a href="#cb40-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
+<span id="cb40-43"><a href="#cb40-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb40-44"><a href="#cb40-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">color =</span> <span class="st">"gray10"</span>),</span>
+<span id="cb40-45"><a href="#cb40-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb40-46"><a href="#cb40-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"gray40"</span>),</span>
+<span id="cb40-47"><a href="#cb40-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>(), <span class="co"># Remove vertical grid lines for a cleaner look</span></span>
+<span id="cb40-48"><a href="#cb40-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"gray20"</span>)</span>
+<span id="cb40-49"><a href="#cb40-49" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb40-50"><a href="#cb40-50" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ensure labels don't get cut off at the top</span></span>
+<span id="cb40-51"><a href="#cb40-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_limits</span>(<span class="at">y =</span> model_comparison<span class="sc">$</span>.estimate <span class="sc">*</span> <span class="fl">1.1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
 </div>
-<p>Overall, the <strong>Random Forest</strong> model marginally outperformed the XGBoost model across all evaluated metrics, making it the preferred model for this analysis.</p>
+<p>The minimal error values recorded—specifically an <strong>MAE of 0.0479</strong> and an <strong>RMSE of 0.0593</strong>—collectively validate the <strong>Random Forest</strong> model as a highly reliable <strong>behavioral proxy</strong> for the original fintech risk logic. Because the average deviation from the baseline probability is less than 5%, the model demonstrates sufficient fidelity to serve as a digital twin. This statistical alignment ensures that any prescriptive insights or “What-If” simulations generated within the dashboard are grounded in a mathematically verified reconstruction of the institution’s existing risk architecture.</p>
 </section>
 <section id="variable-importance-random-forest" class="level3">
-<h3 class="anchored" data-anchor-id="variable-importance-random-forest">5.4 Variable Importance (Random Forest)</h3>
+<h3 class="anchored" data-anchor-id="variable-importance-random-forest">5.6 Variable Importance (Random Forest)</h3>
 <p>To understand what drives the model’s predictions, we extract the variable importance scores from the finalized Random Forest model. These scores indicate how much each feature contributes to reducing the prediction error (measured by node impurity).</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true" href="">Plot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false" href="">Code</a></li></ul>
@@ -2173,7 +2201,7 @@ tenure                     1.141237  1        1.068287</code></pre>
 </div>
 </section>
 <section id="business-takeaway" class="level3">
-<h3 class="anchored" data-anchor-id="business-takeaway">5.5 Business Takeaway</h3>
+<h3 class="anchored" data-anchor-id="business-takeaway">5.7 Business Takeaway</h3>
 <p>The model relies most heavily on <code>age</code> and digital engagement (<code>app_logins_frequency</code>) rather than just financial metrics. To proactively prevent churn, retention strategies should be highly personalized by age group and focused on keeping users actively logging into the platform.</p>
 </section>
 </section>

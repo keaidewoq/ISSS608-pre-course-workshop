@@ -14,7 +14,7 @@ execute:
 
 ## 1 Overview
 
-This project aims to develop a robust predictive model to identify customer churn within a Colombian fintech environment. Using the **COFINFAD** dataset, which tracks the behavior of 48,723 customers over the 2023 calendar year, the analysis bridges the gap between customer sentiment and actual transactional behavior. By converting over 3.1 million raw transaction logs into actionable behavioral metrics, the project provides a data-driven strategy for proactive customer retention.
+This project focuses on the development of a robust predictive framework designed to identify and mitigate customer attrition within the Colombian fintech ecosystem. Leveraging the **COFINFAD dataset**—a comprehensive longitudinal record of 48,723 customers over the 2023 fiscal year—the analysis integrates qualitative customer sentiment with quantitative transactional behavior. By synthesizing over 3.1 million raw transaction logs into high-fidelity behavioral metrics, the project establishes a prescriptive, data-driven strategy to optimize proactive customer retention and preserve long-term institutional value.
 
 ## 2 Install and Load Packages
 
@@ -594,9 +594,29 @@ During the multicollinearity assessment on the training set, `product_satisfacti
 
 ## 5 Building Predictive Models
 
-For the predictive modeling phase, **Random Forest** and **XGBoost** were selected due to their superior ability to handle the non-linear relationships and complex feature interactions inherent in banking behavioral data. Random Forest provides a robust, ensemble-based baseline that reduces variance by averaging multiple decision trees, making it highly resistant to overfitting. In contrast, XGBoost (Extreme Gradient Boosting) was chosen for its iterative optimization process, which minimizes residual errors and typically yields higher precision in identifying subtle churn signals. Both models are natively capable of handling the mixed data types in this study—ranging from categorical sentiment scores to capped financial metrics—without requiring the strict linearity assumptions of traditional regression models.
+### 5.1 Justification for Model Development
 
-### 5.1 Create the Preprocessing Recipe
+While the COFINFAD dataset includes a pre-calculated churn probability, this project develops a **de novo predictive engine** using ensemble learning for three strategic reasons:
+
+-   **Transition from Static to Dynamic Analysis:** The original probability column is a static historical record that cannot respond to changes in input data. A custom model is required to power the **interactive simulation environment** in the dashboard, enabling real-time "What-If" adjustments to customer features to observe how risk scores fluctuate.
+
+<!-- -->
+
+-   **Model Interpretability:** To move beyond the "Black Box" nature of the existing data, the framework requires an underlying model object to calculate feature contributions. This allows for the generation of diagnostic visuals that explain the specific drivers behind a customer's risk—a functionality unattainable with a standalone column of static values.
+
+-   **Algorithmic Validation (Benchmarking):** In the absence of binary churn outcomes, the provided probability serves as a **Proxy Ground Truth**. By training optimized models on raw transactional logs, this study seeks to benchmark the ability of ensemble methods to reconstruct these risk scores. A low **Root Mean Square Error (RMSE)** on hold-out data validates that the custom engine has successfully captured the fintech's internal risk logic, ensuring the dashboard’s simulations are mathematically reliable.
+
+### 5.2 Selection of Algorithms: Random Forest and XGBoost
+
+For the predictive modeling phase, **Random Forest** and **XGBoost** were selected due to their superior ability to handle the non-linear relationships and complex feature interactions inherent in financial behavioral data.
+
+-   **Random Forest** provides a robust, ensemble-based baseline that reduces variance by averaging multiple decision trees, making it highly resistant to overfitting and stable across diverse customer segments.
+
+-   **XGBoost (Extreme Gradient Boosting)** was selected for its iterative optimization process, which minimizes residual errors and typically yields higher precision in identifying subtle, high-risk churn signals that simpler models might overlook.
+
+Both models are natively capable of handling the mixed data types present in the COFINFAD dataset—ranging from categorical sentiment scores to continuous financial metrics—without requiring the strict linearity assumptions of traditional regression models.
+
+### 5.3 Create the Preprocessing Recipe
 
 This recipe will automatically clean the data for both models. Since we have categorical variables like `gender` and `occupation`, we must convert them into a numeric format (Dummy Encoding).
 
@@ -613,11 +633,11 @@ churn_recipe <- recipe(churn_probability ~ ., data = train_data) %>%
   step_normalize(all_numeric_predictors())
 ```
 
-### 5.2 Tune and Fit the Models
+### 5.4 Tune and Fit the Models
 
-#### 5.2.1 The Tuning Phase
+#### 5.4.1 The Tuning Phase
 
-##### 5.2.1.1 Set Up Cross-Validation Folds
+##### 5.4.1.1 Set Up Cross-Validation Folds
 
 Instead of training on the entire dataset at once, cross-validation splits training data into multiple "folds." The model trains on a subset and evaluates on the holdout fold, repeating this process to ensure it generalizes well to unseen data.
 
@@ -627,7 +647,7 @@ set.seed(123) # For reproducibility
 churn_folds <- vfold_cv(train_data, v = 5)
 ```
 
-##### 5.2.1.2 Tag Hyperparameters for Tuning
+##### 5.4.1.2 Tag Hyperparameters for Tuning
 
 -   **For Random Forest:** We typically tune `mtry` (number of predictors sampled at each split) and `min_n` (minimum data points in a node).
 
@@ -653,7 +673,7 @@ xgb_tune_spec <- boost_tree(
   set_mode("regression")
 ```
 
-##### 5.2.1.3 Build the Tuning Workflows
+##### 5.4.1.3 Build the Tuning Workflows
 
 Attach recipe and the new tunable specifications to workflows.
 
@@ -667,7 +687,7 @@ xgb_tune_wf <- workflow() %>%
   add_model(xgb_tune_spec)
 ```
 
-##### 5.2.1.4 Run the Grid Search
+##### 5.4.1.4 Run the Grid Search
 
 In this step, we perform hyperparameter tuning for both the Random Forest and XGBoost models. Using the 5 cross-validation folds created earlier, we test a grid of 5 distinct parameter combinations to identify the optimal settings that yield the lowest error rate.
 
@@ -700,7 +720,7 @@ rf_tune_results <- readRDS("rf_tune_results.rds")
 xgb_tune_results <- readRDS("xgb_tune_results.rds")
 ```
 
-#### 5.2.2 The Finalizing and Fitting phase
+#### 5.4.2 The Finalizing and Fitting phase
 
 Once the tuning finishes, we can extract the best performing hyperparameter combination (e.g., the one with the lowest Root Mean Squared Error, or RMSE) and finalize the workflow.
 
@@ -718,7 +738,7 @@ final_rf_fit <- fit(final_rf_wf, data = train_data)
 final_xgb_fit <- fit(final_xgb_wf, data = train_data)
 ```
 
-### 5.3 Model Performance and Comparison
+### 5.5 Model Performance and Comparison
 
 ::: panel-tabset
 ## Plot
@@ -745,30 +765,36 @@ model_comparison <- bind_rows(rf_results, xgb_results) %>%
   select(model, .metric, .estimate) %>%
   arrange(.metric, .estimate)
 
-# Create a faceted bar chart
+# Create a faceted bar chart 
 ggplot(model_comparison, aes(x = model, y = .estimate, fill = model)) +
-  geom_col(width = 0.6, show.legend = FALSE) +
-  # Add labels on top of bars for clarity
-  geom_text(aes(label = round(.estimate, 4)), vjust = -0.5, size = 3.5) +
-  # Split by metric and give each its own Y-axis scale
+  geom_col(width = 0.5, show.legend = FALSE) + # Narrower bars for a cleaner look
+  # Add labels on top of bars
+  geom_text(aes(label = round(.estimate, 4)), vjust = -0.7, size = 3.2, color = "gray20") +
+  # Split by metric
   facet_wrap(~ .metric, scales = "free_y", 
              labeller = labeller(.metric = c(
                mae = "MAE", 
                rmse = "RMSE", 
                rsq = "R-Squared"
              ))) +
-  # Clean up the look
-  scale_fill_manual(values = c("Random Forest" = "#2c3e50", "XGBoost" = "#e74c3c")) +
+  # Updated Neutral Color Palette
+  scale_fill_manual(values = c("Random Forest" = "#4A5568", "XGBoost" = "#A0AEC0")) +
+  # Visual refinements
   labs(
-    title = "Performance Comparison: Random Forest vs. XGBoost",
+    title = "Model Performance",
     x = NULL,
     y = "Metric Value"
   ) +
-  theme_minimal() +
+  theme_minimal(base_size = 11) +
   theme(
-    strip.text = element_text(face = "bold", size = 11),
-    plot.title = element_text(face = "bold")
-  )
+    strip.text = element_text(face = "bold", color = "gray10"),
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(color = "gray40"),
+    panel.grid.major.x = element_blank(), # Remove vertical grid lines for a cleaner look
+    axis.text.x = element_text(color = "gray20")
+  ) +
+  # Ensure labels don't get cut off at the top
+  expand_limits(y = model_comparison$.estimate * 1.1)
 
 ```
 
@@ -798,35 +824,41 @@ model_comparison <- bind_rows(rf_results, xgb_results) %>%
 
 # Create a faceted bar chart
 ggplot(model_comparison, aes(x = model, y = .estimate, fill = model)) +
-  geom_col(width = 0.6, show.legend = FALSE) +
-  # Add labels on top of bars for clarity
-  geom_text(aes(label = round(.estimate, 4)), vjust = -0.5, size = 3.5) +
-  # Split by metric and give each its own Y-axis scale
+  geom_col(width = 0.5, show.legend = FALSE) + # Narrower bars for a cleaner look
+  # Add labels on top of bars
+  geom_text(aes(label = round(.estimate, 4)), vjust = -0.7, size = 3.2, color = "gray20") +
+  # Split by metric
   facet_wrap(~ .metric, scales = "free_y", 
              labeller = labeller(.metric = c(
                mae = "MAE", 
                rmse = "RMSE", 
                rsq = "R-Squared"
              ))) +
-  # Clean up the look
-  scale_fill_manual(values = c("Random Forest" = "#2c3e50", "XGBoost" = "#e74c3c")) +
+  # Updated Neutral Color Palette
+  scale_fill_manual(values = c("Random Forest" = "#4A5568", "XGBoost" = "#A0AEC0")) +
+  # Visual refinements
   labs(
-    title = "Performance Comparison: Random Forest vs. XGBoost",
+    title = "Model Performance",
     x = NULL,
     y = "Metric Value"
   ) +
-  theme_minimal() +
+  theme_minimal(base_size = 11) +
   theme(
-    strip.text = element_text(face = "bold", size = 11),
-    plot.title = element_text(face = "bold")
-  )
+    strip.text = element_text(face = "bold", color = "gray10"),
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(color = "gray40"),
+    panel.grid.major.x = element_blank(), # Remove vertical grid lines for a cleaner look
+    axis.text.x = element_text(color = "gray20")
+  ) +
+  # Ensure labels don't get cut off at the top
+  expand_limits(y = model_comparison$.estimate * 1.1)
 
 ```
 :::
 
-Overall, the **Random Forest** model marginally outperformed the XGBoost model across all evaluated metrics, making it the preferred model for this analysis.
+The minimal error values recorded—specifically an **MAE of 0.0479** and an **RMSE of 0.0593**—collectively validate the **Random Forest** model as a highly reliable **behavioral proxy** for the original fintech risk logic. Because the average deviation from the baseline probability is less than 5%, the model demonstrates sufficient fidelity to serve as a digital twin. This statistical alignment ensures that any prescriptive insights or "What-If" simulations generated within the dashboard are grounded in a mathematically verified reconstruction of the institution's existing risk architecture.
 
-### 5.4 Variable Importance (Random Forest)
+### 5.6 Variable Importance (Random Forest)
 
 To understand what drives the model's predictions, we extract the variable importance scores from the finalized Random Forest model. These scores indicate how much each feature contributes to reducing the prediction error (measured by node impurity).
 
@@ -892,7 +924,7 @@ We can group these primary drivers into four distinct business categories:
 -   **Financial Indicators (`credit_utilization_ratio`):** A customer's financial footprint, specifically how much of their available credit they are utilizing, acts as a key variable. High or low utilization could be indicative of financial stress or shifting to a competitor's product.
 :::
 
-### 5.5 Business Takeaway
+### 5.7 Business Takeaway
 
 The model relies most heavily on `age` and digital engagement (`app_logins_frequency`) rather than just financial metrics. To proactively prevent churn, retention strategies should be highly personalized by age group and focused on keeping users actively logging into the platform.
 
